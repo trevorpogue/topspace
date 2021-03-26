@@ -10,7 +10,7 @@ Scrolling also integrates well with `centered-cursor-mode`, allowing the cursor 
 Save the file from this repository named `"vertical-center-mode.el"` into a directory of your choice, then add the following lines to your [`.emacs`][1] file if not using Spacemacs:
 
 	(setq load-path (append load-path "<directory>"))
-	(require 'use-package)
+	(require 'vertical-center-mode)
 
 If using Spacemacs, add the following to your `dotspacemacs/user-config`:
 
@@ -26,7 +26,7 @@ Above, `<directory>` should be the path to the directory in which you saved the 
 # Usage
 After restarting Emacs, you can now activate or deactivate the mode by typing <kbd>M-x vertical-center-mode</kbd>.
 
-You can also globally enable the minor mode either manually by typing <kbd>M-x global-vertical-center-mode</kbd>, or on init by adding the following to your init file.
+You can also globally enable the minor mode either manually by typing <kbd>M-x global-vertical-center-mode</kbd>, or on init by adding the following to your init file:
 
 `(global-vertical-center-mode 1)`
 
