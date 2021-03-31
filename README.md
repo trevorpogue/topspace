@@ -2,7 +2,7 @@
 ### An Emacs minor-mode
 Automatically center buffers vertically in the window after opening files and during editing. Users can also adjust the centering offset with scrolling to further scroll up or down by any amount **above** the top lines in a buffer.
 
-Scrolling is currently supported when using the `scroll-down-line`/`scroll-up-line`, or `evil-scroll-line-up`/`evil-scroll-line-down`.
+Scrolling is currently supported when using `scroll-down-line`/`scroll-up-line`, or `evil-scroll-line-up`/`evil-scroll-line-down`.
 
 Scrolling also integrates well with `centered-cursor-mode`, allowing the cursor to stay centered all the way to the top line when moving the cursor with `previous-line` and `next-line`.
 
