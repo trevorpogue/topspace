@@ -4,9 +4,9 @@
 ![topspace](https://user-images.githubusercontent.com/12535207/154770200-0b3edcd8-8036-40c7-910f-d5b3a1c3b4df.gif)
 
 
-Topspace is an emacs minor mode that lets you scroll above the top line to vertically center top text.
+`topspace` is an emacs minor mode that lets you scroll above the top line to vertically center top text.
 
-No new keybindings are required as topspace automatically works for any
+No new keybindings are required as `topspace` automatically works for any
 commands or subsequent function calls which use `scroll-up`, `scroll-down`,
 or `recenter` as the underlying primitives for scrolling. This includes all
 scrolling commands/functions available in Emacs that the author is aware of.
