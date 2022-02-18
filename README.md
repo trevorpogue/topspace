@@ -1,36 +1,40 @@
-# vertical-center-mode
-### An Emacs minor-mode
-Automatically center buffers vertically in the window after opening files and during editing. Users can also adjust the centering offset with scrolling to further scroll up or down by any amount **above** the top lines in a buffer.
+# TopSpace
+**Scroll above the top line**
 
-Scrolling is currently supported when using `scroll-down-line`/`scroll-up-line`, or `evil-scroll-line-up`/`evil-scroll-line-down`.
+![topspace](https://user-images.githubusercontent.com/12535207/154770200-0b3edcd8-8036-40c7-910f-d5b3a1c3b4df.gif)
 
-Scrolling also integrates well with `centered-cursor-mode`, allowing the cursor to stay centered all the way to the top line when moving the cursor with `previous-line` and `next-line`.
 
-# Installation
-Save the file from this repository named `"vertical-center-mode.el"` into a directory of your choice, then add the following lines to your [`.emacs`][1] file if not using Spacemacs:
+Topspace is an emacs minor mode that lets you scroll above the top line to vertically center top text.
+'
+No new keybindings are required as topspace automatically works for any
+commands or subsequent function calls which use `scroll-up`, `scroll-down`,
+or `recenter` as the underlying primitives for scrolling. This includes all
+scrolling commands/functions available in Emacs that the author is aware of.
 
-	(setq load-path (append load-path "<directory>"))
-	(require 'vertical-center-mode)
+Bonus: If you use [`centered-cursor-mode`][3], this means that `topspace` will automatically let you center the cursor all the way to the top line!
 
-If using Spacemacs, add the following to your `dotspacemacs/user-config`:
 
-```
-(eval-when-compile
-	(add-to-list 'load-path "<directory>")
-	(require 'use-package))
-(use-package vertical-center-mode)
-```
+<!-- # Installation -->
+<!-- Save the file from this repository named `"topspace.el"` into a directory of your choice, then install it using [`use-package`][2] by adding the following lines to your [`init file`][1]: -->
 
-Above, `<directory>` should be the path to the directory in which you saved the `"vertical-center-mode.el"` file.
+<!-- ``` -->
+<!-- (use-package topspace :load-path "<directory>") -->
+<!-- ``` -->
 
-# Usage
-After restarting Emacs, you can now activate or deactivate the mode by typing <kbd>M-x vertical-center-mode</kbd>.
+<!-- Above, `<directory>` should be the path to the directory in which you saved the `"topspace.el"` file. -->
 
-You can also globally enable the minor mode either manually by typing <kbd>M-x global-vertical-center-mode</kbd>, or on init by adding the following to your init file:
+<!-- # Usage -->
+<!-- After restarting Emacs, you can now activate or deactivate the mode by typing <kbd>M-x topspace-mode</kbd>. -->
 
-`(global-vertical-center-mode 1)`
+<!-- You can also globally enable the minor mode either manually by typing <kbd>M-x global-topspace-mode</kbd>, or on init by changing the `use-package` code to the following to your init file: -->
 
-# Contributions
-The initial implementation ideas and name for this minor-mode originated from [this answer](https://stackoverflow.com/a/66678124/3705784) in a Stack Overflow thread.
+<!-- ``` -->
+<!-- (use-package topspace -->
+<!--   :load-path "<directory>" -->
+<!--   :config (global-topspace-mode)) -->
+<!-- ``` -->
+
 
   [1]: https://www.gnu.org/software/emacs/manual/html_node/emacs/Init-File.html
+  [2]: https://github.com/jwiegley/use-package
+  [3]: https://github.com/emacsmirror/centered-cursor-mode
