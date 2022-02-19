@@ -307,8 +307,7 @@ return unexpected value when END is in column 0. This fixes that issue."
 
 (defun topspace--post-command ()
   "Gradually reduce top space before the cursor will move past the bottom."
-  (when (and (eq (get-buffer-window (current-buffer)) (selected-window))
-             (= topspace--pre-command-window-start 1)
+  (when (and (= topspace--pre-command-window-start 1)
              (< (- (line-number-at-pos (point))
                    (line-number-at-pos topspace--pre-command-point))
                 (topspace--window-height)))
