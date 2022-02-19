@@ -31,24 +31,44 @@
 ;; No new keybindings are required as topspace automatically works for any
 ;; commands or subsequent function calls which use `scroll-up', `scroll-down',
 ;; or `recenter' as the underlying primitives for scrolling. This includes all
-;; scrolling commands/functions available in Emacs that the author is aware of.
+;; scrolling commands/functions available in Emacs as far as the author is
+;; aware.
 
 ;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Private variables
 
-(defvar-local topspace--heights '())
-(defvar-local topspace--autocenter-heights '())
-(defvar-local topspace--previous-window-heights '())
+(defvar-local topspace--heights '()
+  "Stores top space heights of each window that buffer has been selected in.")
 
-(defvar-local topspace--window-start-before-scroll 2)
-(defvar-local topspace--total-lines-scrolling 0)
+(defvar-local topspace--autocenter-heights '()
+  "Stores the top space heights needed to center small buffers.
+A value is stored for each window that the buffer has been selected in.")
 
-(defvar-local topspace--pre-command-point 1)
-(defvar-local topspace--pre-command-window-start 2)
+(defvar-local topspace--previous-window-heights '()
+  "Stores the window heights of each window that buffer has been selected in.")
 
-(defvar-local topspace--enabled nil)
+(defvar-local topspace--window-start-before-scroll 2
+  "Helps to identify if more top space must be drawn after scrolling up.")
+
+(defvar-local topspace--total-lines-scrolling 0
+  "Stores the total lines that the user is scrolling until scroll is complete.")
+
+(defvar-local topspace--pre-command-point 1
+  "Used for performance improvement by abandoning extra calculations.
+In the post command hook, this determines if point moved further than the
+window height, in which case there is no point checking if the top space
+should be reduced in size or not.")
+
+(defvar-local topspace--pre-command-window-start 2
+  "Used for performance improvement by abandoning extra calculations.
+In the post command hook, this determines if any top space was present
+before the command, otherwise there is no point checking if the top
+space should be reduced in size or not")
+
+(defvar-local topspace--enabled nil
+  "Keeps track if variable `topspace-mode' is enabled or not.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
@@ -63,13 +83,19 @@
 
 (defcustom topspace-autocenter-buffers
   t
-  "Vertically center small buffers when first opened or window sizes change."
+  "Vertically center small buffers when first opened or window sizes change.
+
+This is done by automatically calling `topspace-recenter-buffer',
+which adds enough top space to center small buffers.
+Top space will not be added if the number of text lines in the buffer is larger
+than or close to the selected window's height.
+Customize `topspace-center-position' to adjust the centering position."
   :group 'topspace
   :type 'boolean)
 
 (defcustom topspace-center-position
   0.5
-  "Suggested position when centering buffers as a ratio of frame height.
+  "Target position when centering buffers as a ratio of frame height.
 A value from 0 to 1 where lower values center buffers higher up in the screen.
 
 Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
@@ -183,7 +209,7 @@ If no previous value exists, return the appropriate value to
     height))
 
 (defun topspace--correct-height (height)
-  "Return HEIGHT if a valid top space line height, else return a valid value.
+  "Return HEIGHT if a valid top space line height, else a valid value.
 
 Valid top space line heights are:
 - never negative,
@@ -198,8 +224,8 @@ Valid top space line heights are:
 (defun topspace--total-lines-past-max (&optional topspace-height)
   "Used when making sure top space height does not push cursor off-screen.
 Return how many lines past the bottom of the window the cursor would get pushed
-if setting the top space to the suggested value TOPSPACE-HEIGHT.
-Any value above 0 flags that the suggested TOPSPACE-HEIGHT is too large."
+if setting the top space to the target value TOPSPACE-HEIGHT.
+Any value above 0 flags that the target TOPSPACE-HEIGHT is too large."
   (- (topspace--current-line-plus-topspace topspace-height)
      (- (topspace--window-height) next-screen-context-lines)))
 
@@ -259,7 +285,7 @@ return unexpected value when END is in column 0. This fixes that issue."
 ;;; Overlay drawing
 
 (defun topspace--put (&optional height)
-  "Put/draw top space as an overlay with the suggested line height HEIGHT."
+  "Put/draw top space as an overlay with the target line height HEIGHT."
   (let ((old-height (topspace--height)))
     (when height (setq height (topspace--set-height height)))
     (when (not height) (setq height old-height))
@@ -278,11 +304,11 @@ return unexpected value when END is in column 0. This fixes that issue."
     height))
 
 (defun topspace--put-increase-height (total-lines)
-  "Increase the top space line height by the suggested amount of TOTAL-LINES."
+  "Increase the top space line height by the target amount of TOTAL-LINES."
   (topspace--put (+ (topspace--height) total-lines)))
 
 (defun topspace--put-decrease-height (total-lines)
-  "Decrease the top space line height by the suggested amount of TOTAL-LINES."
+  "Decrease the top space line height by the target amount of TOTAL-LINES."
   (topspace--put (- (topspace--height) total-lines)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -402,7 +428,7 @@ giving the equivalent effect of being able to scroll above the top line.
 No new keybindings are required as topspace automatically works for any
 commands or subsequent function calls which use `scroll-up', `scroll-down',
 or `recenter' as the underlying primitives for scrolling. This includes all
-scrolling commands/functions available in Emacs that the author is aware of.
+scrolling commands/functions available in Emacs as far as the author is aware.
 
 When called interactively, toggle variable `topspace-mode'.  With prefix
 ARG, enable variable `topspace-mode' if ARG is positive, otherwise disable it.
