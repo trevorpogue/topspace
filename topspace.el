@@ -230,8 +230,8 @@ Buffers will not be auto-centered if `topspace-autocenter-buffers' is nil
 or if the selected window is in a child-frame."
   (and topspace-autocenter-buffers
        (or ;; frame-parent is only provided in Emacs 26.1, so first check
-           ;; if fhat function is boundp.
-        (not (boundp 'frame-parent))
+           ;; if fhat function is fboundp.
+        (not (fboundp 'frame-parent))
         (not (frame-parent)))))
 
   (defun topspace--window-height ()
