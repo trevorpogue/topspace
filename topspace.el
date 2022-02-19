@@ -388,6 +388,11 @@ Topspace will not be enabled for:
 		(advice-remove #'recenter #'topspace--after-recenter)
 		(topspace--remove-hooks)))
 
+(defvar topspace-keymap (make-sparse-keymap)
+	"Keymap for Topspace commands.
+By default this is left empty for users to set with their own
+preferred bindings.")
+
 ;;;###autoload
 (define-minor-mode topspace-mode
 	"Scroll above the top line to vertically center top text.
@@ -417,11 +422,6 @@ Otherwise behave as if called interactively."
 (define-globalized-minor-mode global-topspace-mode topspace-mode
 	topspace-mode
 	:group 'topspace)
-
-(defvar topspace-keymap (make-sparse-keymap)
-	"Keymap for Topspace commands.
-By default this is left empty for users to set with their own
-preferred bindings.")
 
 (provide 'topspace)
 
