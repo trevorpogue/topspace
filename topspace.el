@@ -368,11 +368,11 @@ commands or subsequent function calls which use `scroll-up', `scroll-down',
 or `recenter' as the underlying primitives for scrolling. This includes all
 scrolling commands/functions available in Emacs that the author is aware of.
 
-When called interactively, toggle `topspace-mode'.  With prefix
-ARG, enable `topspace-mode' if ARG is positive, otherwise disable it.
+When called interactively, toggle variable `topspace-mode'.  With prefix
+ARG, enable variable `topspace-mode' if ARG is positive, otherwise disable it.
 
-When called from Lisp, enable `topspace-mode' if ARG is omitted,
-nil or positive.  If ARG is `toggle', toggle `topspace-mode'.
+When called from Lisp, enable variable `topspace-mode' if ARG is omitted,
+nil or positive.  If ARG is `toggle', toggle variable `topspace-mode'.
 Otherwise behave as if called interactively."
   :init-value nil
   :ligher topspace-mode-line
@@ -392,13 +392,13 @@ Topspace will not be enabled for:
 
 - minibuffers
 - ephemeral buffers (See Info node `(elisp)Buffer Names')
-- if `topspace-mode' is already enabled"
+- if variable `topspace-mode' is already enabled"
   (not (or topspace--enabled
            (minibufferp) (string-prefix-p " " (buffer-name)))))
 
 ;;;###autoload
 (defun topspace-enable ()
-  "Enable topspace-mode if not already enabled, otherwise do nothing."
+  "Enable variable `topspace-mode' if not already enabled, else do nothing."
   (interactive)
   (when (topspace--enable-p)
     (topspace--add-hooks)
@@ -412,7 +412,7 @@ Topspace will not be enabled for:
 
 ;;;###autoload
 (defun topspace-disable ()
-  "Disable topspace-mode if already enabled, otherwise do nothing."
+  "Disable variable `topspace-mode' if already enabled, else do nothing."
   (interactive)
   (when topspace--enabled
     (setq topspace--enabled nil)
