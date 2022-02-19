@@ -41,12 +41,13 @@
 (defvar-local topspace--heights '())
 (defvar-local topspace--autocenter-heights '())
 (defvar-local topspace--previous-window-heights '())
-(defvar-local topspace--current-line-numbers '())
+
 (defvar-local topspace--window-start-before-scroll 2)
 (defvar-local topspace--total-lines-scrolling 0)
+
 (defvar-local topspace--pre-command-point 1)
 (defvar-local topspace--pre-command-window-start 2)
-(defvar-local topspace--total-lines-before-change 0)
+
 (defvar-local topspace--enabled nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
