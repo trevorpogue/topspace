@@ -18,13 +18,19 @@ Bonus: If you use [`centered-cursor-mode`][1], this means that `topspace` will a
 ```
 (defcustom topspace-autocenter-buffers
   t
-  "Vertically center small buffers when first opened or window sizes change."
+  "Vertically center small buffers when first opened or window sizes change.
+
+This is done by automatically calling `topspace-recenter-buffer',
+which adds enough top space to center small buffers.
+Top space will not be added if the number of text lines in the buffer is larger
+than or close to the selected window's height.
+Customize `topspace-center-position' to adjust the centering position."
   :group 'topspace
   :type 'boolean)
 
 (defcustom topspace-center-position
   0.5
-  "Suggested position when centering buffers as a ratio of frame height.
+  "Target position when centering buffers as a ratio of frame height.
 A value from 0 to 1 where lower values center buffers higher up in the screen.
 
 Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
