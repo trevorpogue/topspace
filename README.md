@@ -1,8 +1,11 @@
 # TopSpace
+
+[![MELPA](http://melpa.org/packages/topspace-badge.svg)](http://melpa.org/#/topspace)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 **Scroll above the top line**
 
 ![topspace](https://user-images.githubusercontent.com/12535207/154770200-0b3edcd8-8036-40c7-910f-d5b3a1c3b4df.gif)
-
 
 TopSpace is an Emacs minor mode that lets you scroll above the top line to vertically center top text.
 
@@ -12,6 +15,16 @@ or `recenter` as the underlying primitives for scrolling. This includes all
 scrolling commands/functions available in Emacs as far as the author is aware.
 
 Bonus: If you use [`centered-cursor-mode`][1], this means that `topspace` will automatically let you center the cursor all the way to the top line!
+
+### Installation
+
+TopSpace is available on [MELPA](http://melpa.org).
+After [installing MELPA](https://melpa.org/#/getting-started) you can install TopSpace with the following command:
+
+<kbd>M-x</kbd> `package-install` <kbd>[RET]</kbd> `topspace` <kbd>[RET]</kbd>
+
+Then enable TopSpace locally with <kbd>M-x</kbd> `topspace-mode`, or globally with <kbd>M-x</kbd> `global-topspace-mode`.
+Alternatively, add `(global-topspace-mode 1)` to your Emacs config to enable `topspace-mode` globally on startup.
 
 # Customization
 
