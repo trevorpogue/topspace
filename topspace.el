@@ -1,4 +1,4 @@
-;;; topspace.el --- Scroll above the top line to vertically center top text -*- lexical-binding: t -*-
+;;; topspace.el --- Scroll above the top line to vertically center top text with a scrollable top margin/padding -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2021-2022 Trevor Edwin Pogue
 
@@ -23,9 +23,10 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Scroll above the top line to vertically center top text.
-;; Gives the effect of having blank space/padding/margin being automatically
-;; drawn above the top text line using overlays as you scroll above,
+;; Scroll above the top line to vertically center top text
+;; with a scrollable top margin/padding.
+;; An overlay is automatically drawn above the top text line
+;; as you scroll above,
 ;; giving the equivalent effect of being able to scroll above the top line.
 
 ;; No new keybindings are required as topspace automatically works for any
@@ -84,7 +85,6 @@ space should be reduced in size or not")
 (defcustom topspace-autocenter-buffers
   t
   "Vertically center small buffers when first opened or window sizes change.
-
 This is done by automatically calling `topspace-recenter-buffer',
 which adds enough top space to center small buffers.
 Top space will not be added if the number of text lines in the buffer is larger
@@ -97,7 +97,6 @@ Customize `topspace-center-position' to adjust the centering position."
   0.5
   "Target position when centering buffers as a ratio of frame height.
 A value from 0 to 1 where lower values center buffers higher up in the screen.
-
 Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
 if `topspace-autocenter-buffers' is non-nil."
   :group 'topspace
@@ -105,12 +104,10 @@ if `topspace-autocenter-buffers' is non-nil."
 
 (defcustom topspace-mode-line " T"
   "Mode line lighter for Topspace.
-
 The value of this variable is a mode line template as in
 `mode-line-format'.  See Info Node `(elisp)Mode Line Format' for
 more information.  Note that it should contain a _single_ mode
 line construct only.
-
 Set this variable to nil to disable the mode line completely."
   :group 'topspace
   :type 'sexp)
@@ -155,7 +152,6 @@ TOTAL-LINES is used in the same way as in `scroll-up'."
 (defun topspace--after-scroll (&optional total-lines)
   "Run after `scroll-up'/`scroll-down' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-down'.
-
 This is needed when scrolling down (moving buffer text lower in the screen)
 and no top space was present before scrolling but it should be after scrolling.
 The reason this is needed is because `topspace--put' only draws the overlay when
@@ -210,7 +206,6 @@ If no previous value exists, return the appropriate value to
 
 (defun topspace--correct-height (height)
   "Return HEIGHT if a valid top space line height, else a valid value.
-
 Valid top space line heights are:
 - never negative,
 - only positive when `window-start' equals 1,
@@ -257,7 +252,6 @@ which must be accounted for in the calling functions."
 
 (defun topspace--recenter-buffers-p ()
   "Return non-nil if buffer is allowed to be auto-centered.
-
 Buffers will not be auto-centered if `topspace-autocenter-buffers' is nil
 or if the selected window is in a child-frame."
   (and topspace-autocenter-buffers
@@ -366,10 +360,8 @@ return unexpected value when END is in column 0. This fixes that issue."
 ;;;###autoload
 (defun topspace-recenter-buffer ()
   "Add enough top space in the selected window to center small buffers.
-
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
-
 Customize `topspace-center-position' to adjust the centering position.
 Customize `topspace-autocenter-buffers' to run this command automatically
 after first opening buffers and after window sizes change."
@@ -384,9 +376,7 @@ after first opening buffers and after window sizes change."
 
 (defun topspace--enable-p ()
   "Return non-nil if buffer is allowed to enable `topspace-mode.'.
-
 Topspace will not be enabled for:
-
 - minibuffers
 - ephemeral buffers (See Info node `(elisp)Buffer Names')
 - if variable `topspace-mode' is already enabled"
@@ -403,7 +393,9 @@ Topspace will not be enabled for:
                 #'topspace--filter-args-scroll-down)
     (advice-add #'scroll-up   :after #'topspace--after-scroll)
     (advice-add #'scroll-down :after #'topspace--after-scroll)
-    (advice-add #'recenter :after #'topspace--after-recenter)))
+    (advice-add #'recenter :after #'topspace--after-recenter)
+    (dolist (window (get-buffer-window-list))
+      (with-selected-window window (topspace--put)))))
 
 (defun topspace--disable ()
   "Disable variable `topspace-mode' if already enabled, else do nothing."
@@ -420,19 +412,15 @@ Topspace will not be enabled for:
 ;;;###autoload
 (define-minor-mode topspace-mode
   "Scroll above the top line to vertically center top text.
-
-Gives the effect of having blank space/padding/margin being automatically
-drawn above the top text line using overlays as you scroll above,
-giving the equivalent effect of being able to scroll above the top line.
-
+It is like having a scrollable top margin/padding.
+An overlay is automatically drawn above the top text line as you scroll above,
+giving the effect of being able to scroll above the top line.
 No new keybindings are required as topspace automatically works for any
 commands or subsequent function calls which use `scroll-up', `scroll-down',
 or `recenter' as the underlying primitives for scrolling. This includes all
 scrolling commands/functions available in Emacs as far as the author is aware.
-
 When called interactively, toggle variable `topspace-mode'.  With prefix
 ARG, enable variable `topspace-mode' if ARG is positive, otherwise disable it.
-
 When called from Lisp, enable variable `topspace-mode' if ARG is omitted,
 nil or positive.  If ARG is `toggle', toggle variable `topspace-mode'.
 Otherwise behave as if called interactively."
