@@ -1,6 +1,7 @@
 # TopSpace
 
 [![MELPA](http://melpa.org/packages/topspace-badge.svg)](http://melpa.org/#/topspace)
+[![MELPA Stable](http://stable.melpa.org/packages/topspace-badge.svg)](http://stable.melpa.org/#/topspace)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 **Scroll above the top line**
@@ -23,7 +24,7 @@ After [installing MELPA](https://melpa.org/#/getting-started) you can install To
 
 <kbd>M-x</kbd> `package-install` <kbd>[RET]</kbd> `topspace` <kbd>[RET]</kbd>
 
-You may need to run <kbd>M-x</kbd> `package-refresh-contents` before `topspace` shows up here. Then enable TopSpace locally with <kbd>M-x</kbd> `topspace-mode`, or globally with <kbd>M-x</kbd> `global-topspace-mode`.
+If `topspace` did not appear here in `package-install` try running <kbd>M-x</kbd> `package-refresh-contents` and repeating the above step. Then enable TopSpace locally with <kbd>M-x</kbd> `topspace-mode`, or globally with <kbd>M-x</kbd> `global-topspace-mode`.
 Alternatively, add `(global-topspace-mode 1)` to your Emacs config to enable `topspace-mode` globally on startup.
 
 # Customization
