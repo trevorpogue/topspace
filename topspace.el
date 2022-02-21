@@ -173,7 +173,7 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
   redisplay  ; remove flycheck warning for unused argument (see above)
   (when (= (window-start) 1)
     (unless line-offset
-      (setq line-offset (round (/ (topspace--window-height) line-offset))))
+      (setq line-offset (round (/ (topspace--window-height) 2))))
     (when (< line-offset 0)
       (setq line-offset (- (topspace--window-height) line-offset)))
     (topspace--put (- line-offset (topspace--count-lines (window-start)
