@@ -23,7 +23,7 @@ After [installing MELPA](https://melpa.org/#/getting-started) you can install To
 
 <kbd>M-x</kbd> `package-install` <kbd>[RET]</kbd> `topspace` <kbd>[RET]</kbd>
 
-Then enable TopSpace locally with <kbd>M-x</kbd> `topspace-mode`, or globally with <kbd>M-x</kbd> `global-topspace-mode`.
+You may need to run <kbd>M-x</kbd> `package-refresh-contents` before `topspace` shows up here. Then enable TopSpace locally with <kbd>M-x</kbd> `topspace-mode`, or globally with <kbd>M-x</kbd> `global-topspace-mode`.
 Alternatively, add `(global-topspace-mode 1)` to your Emacs config to enable `topspace-mode` globally on startup.
 
 # Customization
