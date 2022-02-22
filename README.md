@@ -34,7 +34,7 @@ If `topspace` did not appear here in `package-install` try running <kbd>M-x</kbd
 Alternatively, add `(global-topspace-mode 1)` to your Emacs config to enable `topspace-mode` globally on startup.
 
 # Customization
-By default, buffers will be vertically centered with top space when first opened. To disable this, simply add the following to your Emacs config:
+By default, small buffers will be vertically centered with top space when first opened. To disable this feature, simply add the following to your Emacs config:
 ```
 (custom-set-variables '(topspace-autocenter-buffers nil))
 ```
