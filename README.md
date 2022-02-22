@@ -8,7 +8,7 @@
 
 ![topspace](https://user-images.githubusercontent.com/12535207/154770200-0b3edcd8-8036-40c7-910f-d5b3a1c3b4df.gif)
 
-TopSpace is an Emacs minor mode that lets you scroll above the top line to vertically center top text with a scrollable top margin/padding.
+TopSpace is an Emacs minor mode that lets you scroll above the top line to vertically center top text with a scrollable top margin/padding. In particular, it is useful when using Emacs in full-screen/on large monitors.
 
 ### Just install and go:
 
