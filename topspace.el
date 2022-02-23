@@ -93,7 +93,7 @@ Customize `topspace-center-position' to adjust the centering position."
   :type 'boolean)
 
 (defcustom topspace-center-position
-  0.5
+  0.4
   "Target position when centering buffers as a ratio of frame height.
 A value from 0 to 1 where lower values center buffers higher up in the screen.
 Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
