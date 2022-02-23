@@ -1,11 +1,11 @@
-;;; topspace.el --- Scroll above the top line to vertically center top text with a scrollable top margin/padding -*- lexical-binding: t -*-
+;;; topspace.el --- Scroll above the top line to vertically center top text or cursor with a scrollable top margin/padding -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2021-2022 Trevor Edwin Pogue
 
 ;; Author: Trevor Edwin Pogue <trevor.pogue@gmail.com>
 ;; Maintainer: Trevor Edwin Pogue <trevor.pogue@gmail.com>
 ;; URL: https://github.com/trevorpogue/topspace
-;; Keywords: convenience, scrolling, center, margin, padding
+;; Keywords: convenience, scrolling, center, cursor, margin, padding
 ;; Version: 0.1.0
 ;; Package-Requires: ((emacs "25.1"))
 
@@ -23,11 +23,10 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Scroll above the top line to vertically center top text
-;; with a scrollable top margin/padding.
-;; An overlay is automatically drawn above the top text line
-;; as you scroll above,
-;; giving the equivalent effect of being able to scroll above the top line.
+;; Scroll above the top line to vertically center top text or cursor with a
+;; scrollable top margin/padding. An overlay is automatically drawn above the
+;; top text line as you scroll above, giving the equivalent effect of being able
+;; to scroll above the top line.
 
 ;; No new keybindings are required as topspace automatically works for any
 ;; commands or subsequent function calls which use `scroll-up', `scroll-down',
@@ -159,7 +158,7 @@ The reason this is needed is because `topspace--put' only draws the overlay when
 in the described case above."
   (setq total-lines topspace--total-lines-scrolling)
   (when (and (> topspace--window-start-before-scroll 1) (= (window-start) 1))
-    (let ((lines-already-scrolled (topspace--count-lines
+    (let ((lines-already-scrolled (count-screen-lines
                                    1 topspace--window-start-before-scroll)))
       (setq total-lines (abs total-lines))
       (set-window-start (selected-window) 1)
@@ -176,8 +175,8 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
       (setq line-offset (round (/ (topspace--window-height) 2))))
     (when (< line-offset 0)
       (setq line-offset (- (topspace--window-height) line-offset)))
-    (topspace--put (- line-offset (topspace--count-lines (window-start)
-                                                         (point))))))
+    (topspace--put (- line-offset (topspace--count-screen-lines (window-start)
+                                                                (point))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Top space line height calculation
@@ -227,12 +226,12 @@ Any value above 0 flags that the target TOPSPACE-HEIGHT is too large."
 (defun topspace--current-line-plus-topspace (&optional topspace-height)
   "Used when making sure top space height does not push cursor off-screen.
 Return the current line plus the top space height TOPSPACE-HEIGHT."
-  (+ (topspace--count-lines (window-start) (point))
+  (+ (count-screen-lines (window-start) (point))
      (or topspace-height (topspace--height))))
 
 (defun topspace--height-to-make-buffer-centered ()
   "Return the necessary top space height to center selected window's buffer."
-  (let ((buffer-height (topspace--count-lines (window-start) (window-end)))
+  (let ((buffer-height (count-screen-lines (window-start) (window-end)))
         (result)
         (window-height (topspace--window-height)))
     (setq result (- (- (topspace--center-frame-line)
@@ -264,14 +263,14 @@ or if the selected window is in a child-frame."
   "Return the number of screen lines in the selected window rounded up."
   (ceiling (window-screen-lines)))
 
-(defun topspace--count-lines (start end)
+(defun topspace--count-screen-lines (start end)
   "Return screen lines between START and END.
 Like `count-screen-lines' except `count-screen-lines' will
 return unexpected value when END is in column 0. This fixes that issue."
-  (let ((adjustment 0) (column))
+  (let ((adjustment 0) (column 0))
     (save-excursion
       (goto-char end)
-      (setq column (mod (current-column) (window-text-width)))
+      (setq column (car (nth 6 (posn-at-point))))
       (unless (= column 0) (setq adjustment -1)))
     (+ (count-screen-lines start end) adjustment)))
 
@@ -411,7 +410,7 @@ Topspace will not be enabled for:
 
 ;;;###autoload
 (define-minor-mode topspace-mode
-  "Scroll above the top line to vertically center top text.
+  "Scroll above the top line to vertically center top text or cursor.
 It is like having a scrollable top margin/padding.
 An overlay is automatically drawn above the top text line as you scroll above,
 giving the effect of being able to scroll above the top line.
