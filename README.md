@@ -1,13 +1,18 @@
+---
+
 <h1 align="center"> TopSpace </h1>
+<p align="center">Scroll above the top line.</p>
+
 <p align="center">
   <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
   <a href="http://stable.melpa.org/#/topspace"><img src="http://stable.melpa.org/packages/topspace-badge.svg" height="20"/></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" height="20"/></a>
 </p>
-<p align="center">Scroll above the top line.</p>
 <br/>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
+
+---
 
 # Overview
 
