@@ -1,27 +1,26 @@
-# TopSpace
+<h1 align="center"> TopSpace </h1>
+<p align="center">
+  <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
+  <a href="http://stable.melpa.org/#/topspace"><img src="http://stable.melpa.org/packages/topspace-badge.svg" height="20"/></a>
+  <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" height="20"/></a>
+</p>
+<p align="center">Scroll above the top line.</p>
+<br/>
 
-[![MELPA](http://melpa.org/packages/topspace-badge.svg)](http://melpa.org/#/topspace)
-[![MELPA Stable](http://stable.melpa.org/packages/topspace-badge.svg)](http://stable.melpa.org/#/topspace)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+<p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
 
-**Scroll above the top line**
+# Overview
 
-![topspace](https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif)
+TopSpace is an Emacs minor mode that lets you scroll above the top line to vertically center the top text or cursor with a scrollable top margin/padding. In particular, it is useful when using Emacs in full-screen/on large monitors. TopSpace is:
 
-TopSpace is an Emacs minor mode that lets you scroll above the top line to vertically center top text or cursor with a scrollable top margin/padding. In particular, it is useful when using Emacs in full-screen/on large monitors.
+* **Easy to setup**:
+No new keybindings are required, keep using all your previous scrolling commands.
 
-### Just install and go:
+* **Compatible with [centered-cursor-mode][1]**:
+Center the cursor all the way to the top line!
 
-No new keybindings are required as `topspace` automatically works for any
-commands or subsequent function calls which use `scroll-up`, `scroll-down`,
-or `recenter` as the underlying primitives for scrolling. This includes all
-scrolling commands/functions available in Emacs as far as the author is aware.
-
-### How it works:
-
+* **Using overlays**:
 The top "margin" is created by drawing an [overlay](https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html) before window-start which contains nothing but newline characters. As you scroll, more newline characters are added or removed accordingly.
-
-Bonus: If you use [`centered-cursor-mode`][1], this means that `topspace` will automatically let you center the cursor all the way to the top line!
 
 # Installation
 
