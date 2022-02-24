@@ -9,7 +9,7 @@
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
 
-# Overview
+# :wave: Introduction
 
 TopSpace is an Emacs minor mode that lets you scroll above the top line to vertically center the top text or cursor with a scrollable top margin/padding. In particular, it is useful when using Emacs in full-screen/on large monitors. TopSpace is:
 
@@ -22,7 +22,7 @@ Center the cursor all the way to the top line!
 * **Using overlays**:
 The top "margin" is created by drawing an [overlay](https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html) before window-start which contains nothing but newline characters. As you scroll, more newline characters are added or removed accordingly.
 
-# Installation
+# :screwdriver: Installation
 
 TopSpace is available on [MELPA](http://melpa.org).
 After [installing MELPA](https://melpa.org/#/getting-started) you can install TopSpace with the following command:
@@ -32,7 +32,7 @@ After [installing MELPA](https://melpa.org/#/getting-started) you can install To
 If `topspace` did not appear here in `package-install` try running <kbd>M-x</kbd> `package-refresh-contents` and repeating the above step. Then enable TopSpace locally with <kbd>M-x</kbd> `topspace-mode`, or globally with <kbd>M-x</kbd> `global-topspace-mode`.
 Alternatively, add `(global-topspace-mode 1)` to your Emacs config to enable `topspace-mode` globally on startup.
 
-# Customization
+# :gear: Customization
 By default, small buffers will be vertically centered with top space when first opened. To disable this feature, simply add the following to your Emacs config:
 ```
 (custom-set-variables '(topspace-autocenter-buffers nil))
@@ -62,7 +62,7 @@ if `topspace-autocenter-buffers' is non-nil."
   :type 'float)
 ```
 
-# Extra commands
+# :hammer_and_wrench: Extra commands
 
 ### `topspace-recenter-buffer`:
 
@@ -75,5 +75,14 @@ Customize `topspace-center-position` to adjust the centering position.
 Customize `topspace-autocenter-buffers` to run this command automatically
 after first opening buffers and after window sizes change.
 
+# :clap:  Supporters
+### &#8627; Stargazers
+[![Stargazers repo roster for @trevorpogue/topspace](https://reporoster.com/stars/trevorpogue/topspace)](https://github.com/trevorpogue/topspace/stargazers)
+
+### &#8627; Forkers
+[![Forkers repo roster for @trevorpogue/topspace](https://reporoster.com/forks/trevorpogue/topspace)](https://github.com/trevorpogue/topspace/network/members)
+<p align="center"><a href="https://github.com/nastyox/Rando.js#nastyox"><img src="http://randojs.com/images/barsSmallTransparentBackground.gif" alt="Animated footer bars" width="100%"/></a></p>
+<br/>
+<p align="center"><a href="https://github.com/nastyox/Rando.js#"><img src="http://randojs.com/images/backToTopButtonTransparentBackground.png" alt="Back to top" height="29"/></a></p>
 
   [1]: https://github.com/andre-r/centered-cursor-mode.el
