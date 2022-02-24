@@ -11,7 +11,7 @@
 <a href="https://github.com/trevorpogue/topspace#hammer_and_wrench-Installation"> Installation </a> |
 <a href="https://github.com/trevorpogue/topspace#gear-customization"> Customization</a> |
 <a href="https://github.com/trevorpogue/topspace#hammer_and_pick-extra-commands"> Extra commands</a> |
-<a href="https://github.com/trevorpogue/topspace#chains--supporters"> Supporters </a>
+<a href="https://github.com/trevorpogue/topspace#chains-supporters"> Supporters </a>
 </p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
