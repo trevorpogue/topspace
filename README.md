@@ -9,8 +9,6 @@
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
 
-# :wave: Introduction
-
 TopSpace is an Emacs minor mode that lets you scroll above the top line to vertically center the top text or cursor with a scrollable top margin/padding. In particular, it is useful when using Emacs in full-screen/on large monitors. TopSpace is:
 
 * **Easy to setup**:
@@ -22,7 +20,7 @@ Center the cursor all the way to the top line!
 * **Using overlays**:
 The top "margin" is created by drawing an [overlay](https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html) before window-start which contains nothing but newline characters. As you scroll, more newline characters are added or removed accordingly.
 
-# :screwdriver: Installation
+# :hammer_and_wrench: Installation
 
 TopSpace is available on [MELPA](http://melpa.org).
 After [installing MELPA](https://melpa.org/#/getting-started) you can install TopSpace with the following command:
@@ -62,7 +60,7 @@ if `topspace-autocenter-buffers' is non-nil."
   :type 'float)
 ```
 
-# :hammer_and_wrench: Extra commands
+# :hammer_and_pick: Extra commands
 
 ### `topspace-recenter-buffer`:
 
@@ -75,7 +73,7 @@ Customize `topspace-center-position` to adjust the centering position.
 Customize `topspace-autocenter-buffers` to run this command automatically
 after first opening buffers and after window sizes change.
 
-# :clap:  Supporters
+# :chains:  Supporters
 ### &#8627; Stargazers
 [![Stargazers repo roster for @trevorpogue/topspace](https://reporoster.com/stars/trevorpogue/topspace)](https://github.com/trevorpogue/topspace/stargazers)
 
