@@ -81,7 +81,7 @@ after first opening buffers and after window sizes change.
 
 ### &#8627; Forkers
 [![Forkers repo roster for @trevorpogue/topspace](https://reporoster.com/forks/trevorpogue/topspace)](https://github.com/trevorpogue/topspace/network/members)
-<p align="center"><a href="https://github.com/trevorpogue/topspace#nastyox"><img src="http://randojs.com/images/barsSmallTransparentBackground.gif" alt="Animated footer bars" width="100%"/></a></p>
+<p align="center"><a href="https://github.com/trevorpogue/topspace#"><img src="http://randojs.com/images/barsSmallTransparentBackground.gif" alt="Animated footer bars" width="100%"/></a></p>
 <br/>
 <p align="center"><a href="https://github.com/trevorpogue/topspace#"><img src="http://randojs.com/images/backToTopButtonTransparentBackground.png" alt="Back to top" height="29"/></a></p>
 
