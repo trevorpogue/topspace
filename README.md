@@ -1,5 +1,5 @@
 <h1 align="center"> TopSpace </h1>
-<p align="center">Scrollable top margins in Emacs to recenter top lines.</p>
+<p align="center">Recenter top lines in Emacs with scrollable top margins.</p>
 
 <!-- padding cursor -->
 
@@ -7,13 +7,6 @@
   <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
   <a href="http://stable.melpa.org/#/topspace"><img src="http://stable.melpa.org/packages/topspace-badge.svg" height="20"/></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" height="20"/></a>
-</p>
-
-<p align="center">
-<a href="https://github.com/trevorpogue/topspace#hammer_and_wrench-Installation"> Installation </a> |
-<a href="https://github.com/trevorpogue/topspace#gear-customization"> Customization</a> |
-<a href="https://github.com/trevorpogue/topspace#hammer_and_pick-extra-commands"> Extra commands</a> |
-<a href="https://github.com/trevorpogue/topspace#chains-supporters"> Supporters </a>
 </p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
@@ -74,13 +67,5 @@ than or close to the selected window's height.
 Customize `topspace-center-position` to adjust the centering position.
 Customize `topspace-autocenter-buffers` to run this command automatically
 after first opening buffers and after window sizes change.
-
-
-# :chains: Supporters
-Thank you! It's nice to see it being useful for others.
-
-[![Stargazers repo roster for @trevorpogue/topspace](https://reporoster.com/stars/dark/trevorpogue/topspace)](https://github.com/trevorpogue/topspace/stargazers)
-[![Forkers repo roster for @trevorpogue/topspace](https://reporoster.com/forks/dark/trevorpogue/topspace)](https://github.com/trevorpogue/topspace/network/members)
-<p align="center"><a href="https://github.com/trevorpogue/topspace#"><img src="http://randojs.com/images/backToTopButtonTransparentBackground.png" alt="Back to top" height="29"/></a></p>
 
 [1]: https://github.com/andre-r/centered-cursor-mode.el
