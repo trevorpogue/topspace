@@ -1,5 +1,5 @@
 <h1 align="center"> TopSpace </h1>
-<p align="center">Recenter top lines in Emacs with scrollable upper margins.</p>
+<p align="center">Recenter and scroll above the top lines in Emacs.</p>
 
 <!-- padding cursor -->
 
@@ -11,7 +11,7 @@
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
 
-* **Easier on the eyes**: Recenter or pull down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
+* **Easier on the eyes**: Recenter or scroll down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
 * **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.
 
 # :hammer_and_wrench: Installation
