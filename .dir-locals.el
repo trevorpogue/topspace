@@ -1,2 +1,11 @@
 ((emacs-lisp-mode
-  (indent-tabs-mode nil)))
+  (bug-reference-url-format . "https://github.com/trevorpogue/topspace/issues/%s")
+  (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")
+  (indent-tabs-mode . nil)
+  (fill-column . 80)
+  (sentence-end-double-space . t)
+  (emacs-lisp-docstring-fill-column . 75)
+  (checkdoc-symbol-words . ("top-level" "major-mode" "macroexpand-all" "print-level" "print-length"))
+  (checkdoc-package-keywords-flag)
+  (checkdoc-arguments-in-order-flag)
+  (checkdoc-verb-check-experimental-flag)))
