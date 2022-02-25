@@ -1,4 +1,4 @@
-;;; topspace.el --- Scroll above the top line to vertically center top text or cursor with a scrollable top margin/padding -*- lexical-binding: t -*-
+;;; topspace.el --- Scroll down and recenter top lines, upper margin/padding -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2021-2022 Trevor Edwin Pogue
 
@@ -23,16 +23,31 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;; Scroll above the top line to vertically center top text or cursor with a
-;; scrollable top margin/padding. An overlay is automatically drawn above the
-;; top text line as you scroll above, giving the equivalent effect of being able
-;; to scroll above the top line.
+;; Scroll down and recenter top lines.
 
-;; No new keybindings are required as topspace automatically works for any
-;; commands or subsequent function calls which use `scroll-up', `scroll-down',
-;; or `recenter' as the underlying primitives for scrolling. This includes all
-;; scrolling commands/functions available in Emacs as far as the author is
-;; aware.
+;; - Easier on the eyes: Recenter or scroll down top text to a more
+;;   comfortable eye level for reading, especially if in full-screen
+;;   or on a large monitor.
+
+;; - Easy to use: No new keybindings are required, keep using all
+;;   your previous scrolling & recentering commands, except now you
+;;   can also scroll above the top lines. It also integrates
+;;   seamlessly with centered-cursor-mode to keep the cursor
+;;   centered all the way to the top line.
+
+;; How it works:
+;; A top margin is created above the top text line as you scroll down
+;; top text. The \"margin\" is created by drawing an overlay before
+;; window-start containing newline characters. As you scroll above the
+;; top line, more newline characters are added or removed accordingly.
+
+;; No new keybindings are required as topspace automatically works for
+;; any commands or subsequent function calls which use `scroll-up',
+;; `scroll-down',or `recenter' as the underlying primitives for
+;; scrolling. This includes all scrolling commands/functions available
+;; in Emacs as far as the author is aware. It also integrates
+;; seamlessly with `centered-cursor-mode' to keep the cursor centered
+;; all the way to the top line.
 
 ;;; Code:
 
@@ -174,7 +189,9 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
     (unless line-offset
       (setq line-offset (round (/ (topspace--window-height) 2))))
     (when (< line-offset 0)
-      (setq line-offset (- (topspace--window-height) line-offset)))
+      ;; subtracting 3 below made `recenter-top-bottom' act correctly
+      ;; when it moves point to bottom and top space is added to get there
+      (setq line-offset (- (- (topspace--window-height) line-offset) 3)))
     (topspace--put (- line-offset (topspace--count-screen-lines (window-start)
                                                                 (point))))))
 
@@ -410,18 +427,42 @@ Topspace will not be enabled for:
 
 ;;;###autoload
 (define-minor-mode topspace-mode
-  "Scroll above the top line to vertically center top text or cursor.
-It is like having a scrollable top margin/padding.
-An overlay is automatically drawn above the top text line as you scroll above,
-giving the effect of being able to scroll above the top line.
-No new keybindings are required as topspace automatically works for any
-commands or subsequent function calls which use `scroll-up', `scroll-down',
-or `recenter' as the underlying primitives for scrolling. This includes all
-scrolling commands/functions available in Emacs as far as the author is aware.
-When called interactively, toggle variable `topspace-mode'.  With prefix
-ARG, enable variable `topspace-mode' if ARG is positive, otherwise disable it.
-When called from Lisp, enable variable `topspace-mode' if ARG is omitted,
-nil or positive.  If ARG is `toggle', toggle variable `topspace-mode'.
+  "Scroll down and recenter top lines.
+
+- Easier on the eyes: Recenter or scroll down top text to a more
+  comfortable eye level for reading, especially if in full-screen
+  or on a large monitor.
+
+- Easy to use: No new keybindings are required, keep using all
+  your previous scrolling & recentering commands, except now you
+  can also scroll above the top lines. It also integrates
+  seamlessly with centered-cursor-mode to keep the cursor
+  centered all the way to the top line.
+
+How it works:
+A top margin is created above the top text line as you scroll down
+top text. The \"margin\" is created by drawing an overlay before
+window-start containing newline characters. As you scroll above the
+top line, more newline characters are added or removed accordingly.
+
+No new keybindings are required as topspace automatically works for
+any commands or subsequent function calls which use `scroll-up',
+`scroll-down',or `recenter' as the underlying primitives for
+scrolling. This includes all scrolling commands/functions available
+in Emacs as far as the author is aware. It also integrates
+seamlessly with `centered-cursor-mode' to keep the cursor centered
+all the way to the top line.
+
+Enabling/disabling:
+When called interactively, toggle variable `topspace-mode'.
+
+With prefix ARG, enable variable `topspace-mode' if
+ARG is positive, otherwise disable it.
+
+When called from Lisp, enable variable `topspace-mode' if
+ARG is omitted, nil or positive.
+
+If ARG is `toggle', toggle variable `topspace-mode'.
 Otherwise behave as if called interactively."
   :init-value nil
   :ligher topspace-mode-line

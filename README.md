@@ -1,5 +1,7 @@
 <h1 align="center"> TopSpace </h1>
-<p align="center">Scroll above the top line.</p>
+<p align="center">Scroll down and recenter top lines in Emacs.</p>
+
+<!-- padding cursor -->
 
 <p align="center">
   <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
@@ -7,29 +9,10 @@
   <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" height="20"/></a>
 </p>
 
-<p align="center">
-<a href="https://github.com/trevorpogue/topspace#hammer_and_wrench-Installation"> Installation </a> |
-<a href="https://github.com/trevorpogue/topspace#gear-customization"> Customization</a> |
-<a href="https://github.com/trevorpogue/topspace#hammer_and_pick-extra-commands"> Extra commands</a> |
-<a href="https://github.com/trevorpogue/topspace#chains-supporters"> Supporters </a>
-</p>
-
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
 
-TopSpace is an Emacs minor mode that lets you scroll above the top line to vertically center the top text or cursor with a scrollable top margin/padding.
-
-TopSpace is:
-
-* **Easier on the eyes**: Pull down the top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
-
-* **Easy to use**:
-No new keybindings are required, keep using all your previous scrolling commands.
-
-* **Compatible with [centered-cursor-mode][1]**:
-Center the cursor all the way to the top line!
-<!-- <br/> -->
-
-<!-- **Table of contents**:  -->
+* **Easier on the eyes**: Recenter or scroll down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
+* **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.
 
 # :hammer_and_wrench: Installation
 
@@ -84,16 +67,5 @@ than or close to the selected window's height.
 Customize `topspace-center-position` to adjust the centering position.
 Customize `topspace-autocenter-buffers` to run this command automatically
 after first opening buffers and after window sizes change.
-
-
-# :chains: Supporters
-### &#8627; Stargazers
-[![Stargazers repo roster for @trevorpogue/topspace](https://reporoster.com/stars/trevorpogue/topspace)](https://github.com/trevorpogue/topspace/stargazers)
-
-### &#8627; Forkers
-[![Forkers repo roster for @trevorpogue/topspace](https://reporoster.com/forks/trevorpogue/topspace)](https://github.com/trevorpogue/topspace/network/members)
-<p align="center"><a href="https://github.com/trevorpogue/topspace#"><img src="http://randojs.com/images/barsSmallTransparentBackground.gif" alt="Animated footer bars" width="100%"/></a></p>
-<br/>
-<p align="center"><a href="https://github.com/trevorpogue/topspace#"><img src="http://randojs.com/images/backToTopButtonTransparentBackground.png" alt="Back to top" height="29"/></a></p>
 
 [1]: https://github.com/andre-r/centered-cursor-mode.el
