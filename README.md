@@ -1,5 +1,5 @@
 <h1 align="center"> TopSpace </h1>
-<p align="center">Recenter and scroll above the top lines in Emacs.</p>
+<p align="center">Scroll down and recenter the top lines in Emacs.</p>
 
 <!-- padding cursor -->
 
