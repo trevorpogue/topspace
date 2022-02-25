@@ -32,4 +32,4 @@ request. Please, try to follow these guidelines when you do so.
 [2]: http://gun.io/blog/how-to-github-fork-branch-and-pull-request
 [3]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [4]: https://help.github.com/articles/using-pull-requests
-[5]: https://github.com/trevorpogue/topspace/CHANGELOG.md
+[5]: https://github.com/trevorpogue/topspace/blob/main/CHANGELOG.md
