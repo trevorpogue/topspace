@@ -15,4 +15,4 @@ The more detailed you are, the better.**
 - [ ] I've updated the readme (if adding/changing user-visible functionality)
 - [ ] I have confirmed some of these without doing them
 
-Thank you!
+<!-- Thank you! -->
