@@ -14,7 +14,7 @@
 * **Easier on the eyes**: Recenter or scroll down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
 * **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.
 
-# :hammer_and_wrench: Installation
+# Installation
 
 TopSpace is available on [MELPA](http://melpa.org).
 After [installing MELPA](https://melpa.org/#/getting-started) you can install TopSpace with the following command:
@@ -36,7 +36,7 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 (global-topspace-mode 1)
 ```
 
-# :gear: Customization
+# Customization
 ### `topspace-autocenter-buffer`
 * Description: By default, small buffers will be vertically centered with top space when first opened by calling `topspace-recenter-buffer` (described below).
 Top space will not be added if the number of text lines in the buffer is larger
@@ -58,7 +58,7 @@ Customize `topspace-center-position` (described below) to adjust the centering p
 (custom-set-variables '(topspace-center-position <custom value>))
 ```
 
-# :hammer_and_pick: Extra commands
+# Extra commands
 
 ### `topspace-recenter-buffer`
 * Add enough top space in the selected window to center small buffers.
