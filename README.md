@@ -1,5 +1,5 @@
 <h1 align="center"> TopSpace </h1>
-<p align="center">Scroll down and recenter top lines in Emacs / get upper margins/padding.</p>
+<p align="center">Scroll down & recenter top lines in Emacs / get upper margins/padding.</p>
 
 <!-- padding cursor -->
 
@@ -12,7 +12,7 @@
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif" /></a></p>
 
 TopSpace is an Emacs minor mode that allows you to scroll down and recenter top lines
-by automatically drawing upper margins/padding above the top line
+by automatically drawing an upper margin/padding above the top line
 as you scroll down or recenter top text.
 
 TopSpace is:
@@ -88,7 +88,7 @@ scrolling.  This includes all scrolling commands/functions available
 in Emacs as far as the author is aware. This is achieved by using
 `advice-add` with the `scroll-up`, `scroll-down`, and `recenter`
 commands so that custom topspace functions are called before or after
-each time any of these commands are called (interactively or
+each time any of these other commands are called (interactively or
 otherwise).
 
 

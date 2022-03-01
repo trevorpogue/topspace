@@ -24,7 +24,7 @@
 
 ;;; Commentary:
 ;; TopSpace allows you to scroll down and recenter top lines
-;; by automatically drawing upper margins/padding above the top line
+;; by automatically drawing an upper margin/padding above the top line
 ;; as you scroll down or recenter top text.
 
 ;; TopSpace is:
@@ -51,7 +51,7 @@
 ;; in Emacs as far as the author is aware. This is achieved by using
 ;; `advice-add' with the `scroll-up', `scroll-down', and `recenter'
 ;; commands so that custom topspace functions are called before or after
-;; each time any of these commands are called (interactively or
+;; each time any of these other commands are called (interactively or
 ;; otherwise).
 
 ;; See the readme at https://github.com/trevorpogue/topspace for more
@@ -97,7 +97,7 @@ space should be reduced in size or not")
 ;;; Customization
 
 (defgroup topspace nil
-  "Scroll above the top line to vertically center top text."
+  "Scroll down & recenter top lines / get upper margins/padding."
   :group 'scrolling
   :group 'convenience
   :link '(emacs-library-link :tag "Source Lisp File" "topspace.el")
@@ -435,7 +435,13 @@ Topspace will not be enabled for:
 
 ;;;###autoload
 (define-minor-mode topspace-mode
-  "Scroll down and recenter top lines.
+  "Scroll down & recenter top lines / get upper margins/padding.
+
+TopSpace allows you to scroll down and recenter top lines
+by automatically drawing an upper margin/padding above the top line
+as you scroll down or recenter top text.
+
+TopSpace is:
 
 - Easier on the eyes: Recenter or scroll down top text to a more
   comfortable eye level for reading, especially when in full-screen
@@ -447,17 +453,23 @@ Topspace will not be enabled for:
   seamlessly with `centered-cursor-mode' to keep the cursor
   centered all the way to the top line.
 
-How it works:
-A top margin is created above the top text line as you scroll down
-top text.  The \"margin\" is created by drawing an overlay before
-window-start containing newline characters. As you scroll above the
+How it works under the hood:
+The \"upper margin\" is created by drawing an overlay before
+window-start containing newline characters.  As you scroll above the
 top line, more newline characters are added or removed accordingly.
 
 No new keybindings are required as topspace automatically works for
 any commands or subsequent function calls which use `scroll-up',
 `scroll-down', or `recenter' as the underlying primitives for
-scrolling. This includes all scrolling commands/functions available
-in Emacs as far as the author is aware.
+scrolling.  This includes all scrolling commands/functions available
+in Emacs as far as the author is aware. This is achieved by using
+`advice-add' with the `scroll-up', `scroll-down', and `recenter'
+commands so that custom topspace functions are called before or after
+each time any of these other commands are called (interactively or
+otherwise).
+
+See the readme at https://github.com/trevorpogue/topspace for more
+information.
 
 Enabling/disabling:
 When called interactively, toggle variable `topspace-mode'.
