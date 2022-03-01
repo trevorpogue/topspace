@@ -5,13 +5,21 @@
 ### New features
 
 ### Bugs fixed
-* [#2](https://github.com/trevorpogue/topspace/pull/2): Make `recenter-top-bottom' act correctly when it moves point to bottom and top space is added to get there
+
+### Changes
+
+## 0.1.2 (2022-03-01)
+
+### New features
+
+### Bugs fixed
+* [#2](https://github.com/trevorpogue/topspace/pull/2): Make `recenter-top-bottom` act correctly when it moves point to bottom and top space is added to get there
 
 ### Changes
 
 * [2584138](https://github.com/trevorpogue/topspace/commit/25841387a5d0300ea49356b9781c357b84df20bd): Raise topspace-center-position default to a subjectively better position
 
-## 0.1.1 (2021-02-22)
+## 0.1.1 (2022-02-22)
 
 ### New features
 
@@ -21,8 +29,7 @@
 
 ### Changes
 
-
-## 0.1.0 (2021-02-19)
+## 0.1.0 (2022-02-19)
 
 ### New features
 * [#1](https://github.com/trevorpogue/topspace/pull/1): Make mode work for any scrolling command by using add-advice with scroll-up, scroll-down, and recenter
