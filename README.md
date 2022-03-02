@@ -44,7 +44,7 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 ```
 
 # Customization
-### `topspace-autocenter-buffer`
+### `topspace-autocenter-buffers`
 * Description: By default, small buffers will be vertically centered with top space when first opened by calling `topspace-recenter-buffer` (described below).
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
