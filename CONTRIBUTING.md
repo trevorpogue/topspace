@@ -18,6 +18,7 @@ request. Please, try to follow these guidelines when you do so.
 
 ## Pull requests
 
+* Follow the [Emacs Lisp conventions](https://www.gnu.org/software/emacs/manual/html_node/elisp/Tips.html) and the [Emacs Lisp Style Guide](https://github.com/bbatsov/emacs-lisp-style-guide)
 * Read [how to properly contribute to open source projects on Github][2].
 * Use a topic branch to easily amend a pull request later, if necessary.
 * Write [good commit messages][3].
