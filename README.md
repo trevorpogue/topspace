@@ -44,25 +44,60 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 ```
 
 # Customization
-### `topspace-autocenter-buffers`
-* Description: By default, small buffers will be vertically centered with top space when first opened by calling `topspace-recenter-buffer` (described below).
+```elisp
+(defcustom topspace-autocenter-buffers
+  t
+  "Center small buffers with top space when first opened or window sizes change.
+This is done by automatically calling `topspace-recenter-buffer'
+and the positioning can be customized with `topspace-center-position'.
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
-Customize `topspace-center-position` (described below) to adjust the centering position.
-* Default value: t
-* Type: boolean
-* How to modify: Disable this feature by adding the following to your Emacs config:
-```
-(custom-set-variables '(topspace-autocenter-buffers nil))
-```
+Customize `topspace-center-position' to adjust the centering position.
 
-### `topspace-center-position`
-* Description: Target position when centering buffers as a ratio of frame height. It must be a value from 0 to 1 where lower values center buffers higher up in the screen. Used in `topspace-recenter-buffer` (described below) when called or when opening/resizing buffers if `topspace-autocenter-buffers` is non-nil.
-* Default value: 0.4
-* Type: float
-* How to modify: Add the following to your Emacs config:
-```
-(custom-set-variables '(topspace-center-position <custom value>))
+If set to a predicate function (function that returns a boolean value),
+then do auto-centering only when that function returns a non-nil value."
+  :group 'topspace
+  :type '(choice (const :tag "always" t)
+                 (const :tag "never" nil)
+                 (function :tag "predicate function")))
+
+(defcustom topspace-center-position
+  0.4
+  "Target position when centering buffers as a ratio of frame height.
+A value from 0 to 1 where lower values center buffers higher up in the screen.
+Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
+if `topspace-autocenter-buffers' is non-nil."
+  :group 'topspace
+  :type 'float)
+
+(defcustom topspace-active t
+  "Determine when `topspace-mode' mode is active / has any effect on buffer.
+This is useful in particular when `global-topspace-mode' is enabled but you want
+`topspace-mode' to be inactive in certain buffers or in any specific
+circumstance.  When inactive, `topspace-mode' will still technically be on,
+but will be effectively off and have no effect on the buffer.
+
+If t, then always be active.  If nil, never be active.
+If set to a predicate function (function that returns a boolean value),
+then be active only when that function returns a non-nil value."
+  :type '(choice (const :tag "always" t)
+                 (const :tag "never" nil)
+                 (function :tag "predicate function")))
+
+(defcustom topspace-mode-line " T"
+  "Mode line lighter for Topspace.
+The value of this variable is a mode line template as in
+`mode-line-format'.  See Info Node `(elisp)Mode Line Format' for
+more information.  Note that it should contain a _single_ mode
+line construct only.
+Set this variable to nil to disable the mode line completely."
+  :group 'topspace
+  :type 'sexp)
+
+(defvar topspace-keymap (make-sparse-keymap)
+  "Keymap for Topspace commands.
+By default this is left empty for users to set with their own
+preferred bindings.")
 ```
 
 # Extra commands
