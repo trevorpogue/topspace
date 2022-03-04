@@ -48,7 +48,7 @@
 ;; any commands or subsequent function calls which use `scroll-up',
 ;; `scroll-down', or `recenter' as the underlying primitives for
 ;; scrolling.  This includes all scrolling commands/functions available
-;; in Emacs as far as the author is aware. This is achieved by using
+;; in Emacs as far as the author is aware.  This is achieved by using
 ;; `advice-add' with the `scroll-up', `scroll-down', and `recenter'
 ;; commands so that custom topspace functions are called before or after
 ;; each time any of these other commands are called (interactively or
@@ -90,9 +90,6 @@ In the post command hook, this determines if any top space was present
 before the command, otherwise there is no point checking if the top
 space should be reduced in size or not")
 
-(defvar-local topspace--enabled nil
-  "Keeps track if variable `topspace-mode' is enabled or not.")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
 
@@ -106,14 +103,19 @@ space should be reduced in size or not")
 
 (defcustom topspace-autocenter-buffers
   t
-  "Vertically center small buffers when first opened or window sizes change.
-This is done by automatically calling `topspace-recenter-buffer',
-which adds enough top space to center small buffers.
+  "Center small buffers with top space when first opened or window sizes change.
+This is done by automatically calling `topspace-recenter-buffer'
+and the positioning can be customized with `topspace-center-position'.
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
-Customize `topspace-center-position' to adjust the centering position."
+Customize `topspace-center-position' to adjust the centering position.
+
+If set to a predicate function (function that returns a boolean value),
+then do auto-centering only when that function returns a non-nil value."
   :group 'topspace
-  :type 'boolean)
+  :type '(choice (const :tag "always" t)
+                 (const :tag "never" nil)
+                 (function :tag "predicate function")))
 
 (defcustom topspace-center-position
   0.4
@@ -123,6 +125,20 @@ Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
 if `topspace-autocenter-buffers' is non-nil."
   :group 'topspace
   :type 'float)
+
+(defcustom topspace-active t
+  "Determine when `topspace-mode' mode is active / has any effect on buffer.
+This is useful in particular when in `global-topspace-mode' but you want
+`topspace-mode' to be inactive in certain buffers or in any specific
+circumstance.  If inactive, `topspace-mode' will still technically be on,
+but effectively off.
+
+If t, then always be active.  If nil, never be active.
+If set to a predicate function (function that returns a boolean value),
+then be active only when that function returns a non-nil value."
+  :type '(choice (const :tag "always" t)
+                 (const :tag "never" nil)
+                 (function :tag "predicate function")))
 
 (defcustom topspace-mode-line " T"
   "Mode line lighter for Topspace.
@@ -278,7 +294,7 @@ which must be accounted for in the calling functions."
   "Return non-nil if buffer is allowed to be auto-centered.
 Buffers will not be auto-centered if `topspace-autocenter-buffers' is nil
 or if the selected window is in a child-frame."
-  (and topspace-autocenter-buffers
+  (and (topspace--eval-choice-p 'topspace-autocenter-buffers)
        (or ;; frame-parent is only provided in Emacs 26.1, so first check
         ;; if fhat function is fboundp.
         (not (fboundp 'frame-parent))
@@ -311,6 +327,7 @@ return unexpected value when END is in column 0. This fixes that issue."
       (let ((lines-past-max (topspace--total-lines-past-max height)))
         (when (> lines-past-max 0) (forward-line (* lines-past-max -1)))))
     (let ((topspace (make-overlay 0 0)))
+      (unless (topspace--eval-choice-p 'topspace-active) (setq height 0))
       (remove-overlays 1 1 'topspace--remove-from-window-tag
                        (selected-window))
       (overlay-put topspace 'window (selected-window))
@@ -328,6 +345,19 @@ return unexpected value when END is in column 0. This fixes that issue."
 (defun topspace--put-decrease-height (total-lines)
   "Decrease the top space line height by the target amount of TOTAL-LINES."
   (topspace--put (- (topspace--height) total-lines)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Utilities
+
+(defun topspace--eval-choice-p (variable-or-function-p)
+  "Evaluate VARIABLE-OR-FUNCTION-P which is either boolean var/predicate func'n.
+If it is a variable, return its value, if it is a predicate function,
+evaluate the function and return its boolean return value.
+VARIABLE-OR-FUNCTION-P is most likely a user customizable variable of choice
+type."
+  (cond ((fboundp variable-or-function-p)
+         (funcall variable-or-function-p))
+        (t variable-or-function-p)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Hooks
@@ -360,7 +390,8 @@ return unexpected value when END is in column 0. This fixes that issue."
         (setq total-lines-past-max (topspace--total-lines-past-max
                                     topspace-height))
         (when (> total-lines-past-max 0)
-          (topspace--put-decrease-height total-lines-past-max))))))
+          (topspace--put-decrease-height total-lines-past-max)))))
+  (when (= (window-start) 1) (topspace--put)))
 
 (defvar topspace--hook-alist
   '((window-configuration-change-hook . topspace--window-configuration-change)
@@ -403,35 +434,32 @@ after first opening buffers and after window sizes change."
 Topspace will not be enabled for:
 - minibuffers
 - ephemeral buffers (See Info node `(elisp)Buffer Names')
-- if variable `topspace-mode' is already enabled"
-  (not (or topspace--enabled
-           (minibufferp) (string-prefix-p " " (buffer-name)))))
+- if `topspace-mode' is already enabled"
+  (not (or (minibufferp) (string-prefix-p " " (buffer-name)))))
 
 (defun topspace--enable ()
-  "Enable variable `topspace-mode' if not already enabled, else do nothing."
-  (when (topspace--enable-p)
-    (topspace--add-hooks)
-    (setq topspace--enabled t)
-    (advice-add #'scroll-up   :filter-args #'topspace--filter-args-scroll-up)
-    (advice-add #'scroll-down :filter-args
-                #'topspace--filter-args-scroll-down)
-    (advice-add #'scroll-up   :after #'topspace--after-scroll)
-    (advice-add #'scroll-down :after #'topspace--after-scroll)
-    (advice-add #'recenter :after #'topspace--after-recenter)
-    (dolist (window (get-buffer-window-list))
-      (with-selected-window window (topspace--put)))))
+  "Enable `topspace-mode' and do mode setup."
+  (cond ((topspace--enable-p)
+         (topspace--add-hooks)
+         (advice-add #'scroll-up :filter-args #'topspace--filter-args-scroll-up)
+         (advice-add #'scroll-down :filter-args
+                     #'topspace--filter-args-scroll-down)
+         (advice-add #'scroll-up :after #'topspace--after-scroll)
+         (advice-add #'scroll-down :after #'topspace--after-scroll)
+         (advice-add #'recenter :after #'topspace--after-recenter)
+         (dolist (window (get-buffer-window-list))
+           (with-selected-window window (topspace--put))))))
 
 (defun topspace--disable ()
-  "Disable variable `topspace-mode' if already enabled, else do nothing."
-  (when topspace--enabled
-    (setq topspace--enabled nil)
-    (remove-overlays 1 1 'topspace--remove-from-buffer-tag t)
-    (advice-remove #'scroll-up    #'topspace--filter-args-scroll-up)
-    (advice-remove #'scroll-down  #'topspace--filter-args-scroll-down)
-    (advice-remove #'scroll-up   #'topspace--after-scroll)
-    (advice-remove #'scroll-down #'topspace--after-scroll)
-    (advice-remove #'recenter #'topspace--after-recenter)
-    (topspace--remove-hooks)))
+  "Disable `topspace-mode' and do mode cleanup."
+  (message "disable")
+  (remove-overlays 1 1 'topspace--remove-from-buffer-tag t)
+  (advice-remove #'scroll-up    #'topspace--filter-args-scroll-up)
+  (advice-remove #'scroll-down  #'topspace--filter-args-scroll-down)
+  (advice-remove #'scroll-up   #'topspace--after-scroll)
+  (advice-remove #'scroll-down #'topspace--after-scroll)
+  (advice-remove #'recenter #'topspace--after-recenter)
+  (topspace--remove-hooks))
 
 ;;;###autoload
 (define-minor-mode topspace-mode
@@ -462,7 +490,7 @@ No new keybindings are required as topspace automatically works for
 any commands or subsequent function calls which use `scroll-up',
 `scroll-down', or `recenter' as the underlying primitives for
 scrolling.  This includes all scrolling commands/functions available
-in Emacs as far as the author is aware. This is achieved by using
+in Emacs as far as the author is aware.  This is achieved by using
 `advice-add' with the `scroll-up', `scroll-down', and `recenter'
 commands so that custom topspace functions are called before or after
 each time any of these other commands are called (interactively or
@@ -472,15 +500,15 @@ See the readme at https://github.com/trevorpogue/topspace for more
 information.
 
 Enabling/disabling:
-When called interactively, toggle variable `topspace-mode'.
+When called interactively, toggle `topspace-mode'.
 
-With prefix ARG, enable variable `topspace-mode' if
+With prefix ARG, enable `topspace-mode' if
 ARG is positive, otherwise disable it.
 
-When called from Lisp, enable variable `topspace-mode' if
+When called from Lisp, enable `topspace-mode' if
 ARG is omitted, nil or positive.
 
-If ARG is `toggle', toggle variable `topspace-mode'.
+If ARG is `toggle', toggle `topspace-mode'.
 Otherwise behave as if called interactively."
   :init-value nil
   :ligher topspace-mode-line
