@@ -90,6 +90,10 @@ In the post command hook, this determines if any top space was present
 before the command, otherwise there is no point checking if the top
 space should be reduced in size or not")
 
+(defvar-local topspace--got-first-window-configuration-change nil
+  "Displaying top space before the first window config change can cause errors.
+This flag signals to wait until then to display top space.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
 
@@ -122,16 +126,16 @@ then do auto-centering only when that function returns a non-nil value."
   "Target position when centering buffers as a ratio of frame height.
 A value from 0 to 1 where lower values center buffers higher up in the screen.
 Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
-if `topspace-autocenter-buffers' is non-nil."
+if `topspace-autocenter-buffers' returns non-nil."
   :group 'topspace
   :type 'float)
 
 (defcustom topspace-active t
   "Determine when `topspace-mode' mode is active / has any effect on buffer.
-This is useful in particular when in `global-topspace-mode' but you want
+This is useful in particular when `global-topspace-mode' is enabled but you want
 `topspace-mode' to be inactive in certain buffers or in any specific
-circumstance.  If inactive, `topspace-mode' will still technically be on,
-but effectively off.
+circumstance.  When inactive, `topspace-mode' will still technically be on,
+but will be effectively off and have no effect on the buffer.
 
 If t, then always be active.  If nil, never be active.
 If set to a predicate function (function that returns a boolean value),
@@ -232,7 +236,7 @@ Will only set to HEIGHT if HEIGHT is a valid value based on (window-start)."
   "Get the top space line height for the selected window.
 If the existing value is invalid, set and return a valid value.
 If no previous value exists, return the appropriate value to
- center the buffer when `topspace-autocenter-buffers' is non-nil, else 0."
+ center the buffer when `topspace-autocenter-buffers' returns non-nil, else 0."
   (let ((height) (window (selected-window)))
     (setq height (alist-get window topspace--heights))
     (unless (or height (topspace--recenter-buffers-p)) (setq height 0))
@@ -292,9 +296,9 @@ which must be accounted for in the calling functions."
 
 (defun topspace--recenter-buffers-p ()
   "Return non-nil if buffer is allowed to be auto-centered.
-Buffers will not be auto-centered if `topspace-autocenter-buffers' is nil
+Buffers will not be auto-centered if `topspace-autocenter-buffers' returns nil
 or if the selected window is in a child-frame."
-  (and (topspace--eval-choice-p 'topspace-autocenter-buffers)
+  (and (topspace--eval-choice-p topspace-autocenter-buffers)
        (or ;; frame-parent is only provided in Emacs 26.1, so first check
         ;; if fhat function is fboundp.
         (not (fboundp 'frame-parent))
@@ -321,13 +325,13 @@ return unexpected value when END is in column 0. This fixes that issue."
 (defun topspace--put (&optional height)
   "Put/draw top space as an overlay with the target line height HEIGHT."
   (let ((old-height (topspace--height)))
+    (unless (topspace--eval-choice-p topspace-active) (setq height 0))
     (when height (setq height (topspace--set-height height)))
     (when (not height) (setq height old-height))
     (when (and (> height 0) (> height old-height))
       (let ((lines-past-max (topspace--total-lines-past-max height)))
         (when (> lines-past-max 0) (forward-line (* lines-past-max -1)))))
     (let ((topspace (make-overlay 0 0)))
-      (unless (topspace--eval-choice-p 'topspace-active) (setq height 0))
       (remove-overlays 1 1 'topspace--remove-from-window-tag
                        (selected-window))
       (overlay-put topspace 'window (selected-window))
@@ -364,6 +368,7 @@ type."
 
 (defun topspace--window-configuration-change ()
   "Update top spaces when window buffers change or windows are resized."
+  (setq topspace--got-first-window-configuration-change t)
   (let ((current-height (topspace--window-height)) (window (selected-window)))
     (let ((previous-height (alist-get window topspace--previous-window-heights
                                       current-height)))
@@ -391,7 +396,9 @@ type."
                                     topspace-height))
         (when (> total-lines-past-max 0)
           (topspace--put-decrease-height total-lines-past-max)))))
-  (when (= (window-start) 1) (topspace--put)))
+  (when (and (= (window-start) 1)
+             topspace--got-first-window-configuration-change)
+    (topspace--put)))
 
 (defvar topspace--hook-alist
   '((window-configuration-change-hook . topspace--window-configuration-change)
