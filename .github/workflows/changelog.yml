@@ -17,3 +17,9 @@ jobs:
           user: trevorpogue
           repo: topspace
           base: HISTORY.md
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Update Changelog
+        file_pattern: CHANGELOG.md
