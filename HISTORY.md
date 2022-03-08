@@ -1,13 +1,3 @@
-# Changelog
-
-## main (unreleased)
-
-### New features
-
-### Bugs fixed
-
-### Changes
-
 ## 0.1.2 (2022-03-01)
 
 ### New features

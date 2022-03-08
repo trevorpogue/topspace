@@ -9,17 +9,19 @@ on:
 jobs:
   changelog:
     runs-on: ubuntu-20.04
+
     steps:
+      - uses: actions/checkout@v3
+
       - name: "✏️ Generate changelog"
         uses: heinrichreimer/github-changelog-generator-action@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          user: trevorpogue
-          repo: topspace
+          sinceTag: v0.1.2
           base: HISTORY.md
 
-    - name: Commit changes
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: Update Changelog
-        file_pattern: CHANGELOG.md
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update Changelog
+          file_pattern: CHANGELOG.md
