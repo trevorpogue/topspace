@@ -39,3 +39,4 @@
 
 ### Changes
 * [e5b65ec](https://github.com/trevorpogue/topspace/commit/e5b65eccf92571163aa1b6bd738be22d8e0ad1a5): Change project name from vertical-center-mode to topspace
+
