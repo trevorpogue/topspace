@@ -21,6 +21,8 @@ TopSpace is:
 * **Easier on the eyes**: Recenter or scroll down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
 * **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.
 
+Fill out the [satisfaction survey](https://www.supersurvey.com/QRMU65MKE) to help the author know what you would like improved or added.
+
 # Installation
 
 TopSpace is available on [MELPA](http://melpa.org).
