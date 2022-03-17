@@ -1,7 +1,7 @@
 <h1 align="center"> TopSpace </h1>
 <p align="center">Scroll down & recenter top lines in Emacs / get upper margins/padding.</p>
 
-<!-- padding cursor -->
+<!-- cursor -->
 
 <p align="center">
   <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
@@ -17,11 +17,8 @@ as you scroll down or recenter top text.
 
 TopSpace is:
 
-
 * **Easier on the eyes**: Recenter or scroll down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
 * **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.
-
-Fill out the [satisfaction survey](https://www.supersurvey.com/QRMU65MKE) to help the author know what you would like improved or added.
 
 # Installation
 
@@ -47,8 +44,7 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 
 # Customization
 ```elisp
-(defcustom topspace-autocenter-buffers
-  t
+(defcustom topspace-autocenter-buffers t
   "Center small buffers with top space when first opened or window sizes change.
 This is done by automatically calling `topspace-recenter-buffer'
 and the positioning can be customized with `topspace-center-position'.
@@ -56,6 +52,7 @@ Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
 Customize `topspace-center-position' to adjust the centering position.
 
+If non-nil, then always autocenter.  If nil, never autocenter.
 If set to a predicate function (function that returns a boolean value),
 then do auto-centering only when that function returns a non-nil value."
   :group 'topspace
@@ -63,8 +60,7 @@ then do auto-centering only when that function returns a non-nil value."
                  (const :tag "never" nil)
                  (function :tag "predicate function")))
 
-(defcustom topspace-center-position
-  0.4
+(defcustom topspace-center-position 0.4
   "Target position when centering buffers as a ratio of frame height.
 A value from 0 to 1 where lower values center buffers higher up in the screen.
 Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
@@ -78,8 +74,10 @@ This is useful in particular when `global-topspace-mode' is enabled but you want
 `topspace-mode' to be inactive in certain buffers or in any specific
 circumstance.  When inactive, `topspace-mode' will still technically be on,
 but will be effectively off and have no effect on the buffer.
+Note that if `topspace-active' returns non-nil but `topspace-mode' is off,
+`topspace-mode' will still be disabled.
 
-If t, then always be active.  If nil, never be active.
+If non-nil, then always be active.  If nil, never be active.
 If set to a predicate function (function that returns a boolean value),
 then be active only when that function returns a non-nil value."
   :type '(choice (const :tag "always" t)
@@ -128,5 +126,6 @@ commands so that custom topspace functions are called before or after
 each time any of these other commands are called (interactively or
 otherwise).
 
+Fill out the [satisfaction survey](https://www.supersurvey.com/QRMU65MKE) to help the author know what you would like improved or added.
 
 [1]: https://github.com/andre-r/centered-cursor-mode.el

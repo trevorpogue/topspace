@@ -94,6 +94,8 @@ space should be reduced in size or not")
   "Displaying top space before the first window config change can cause errors.
 This flag signals to wait until then to display top space.")
 
+(defvar topspace--advice-added nil "Keep track if advice-add done already.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
 
@@ -105,8 +107,7 @@ This flag signals to wait until then to display top space.")
   :link '(url-link "https://github.com/trevorpogue/topspace")
   :link '(emacs-commentary-link :tag "Commentary" "topspace"))
 
-(defcustom topspace-autocenter-buffers
-  t
+(defcustom topspace-autocenter-buffers t
   "Center small buffers with top space when first opened or window sizes change.
 This is done by automatically calling `topspace-recenter-buffer'
 and the positioning can be customized with `topspace-center-position'.
@@ -114,6 +115,7 @@ Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
 Customize `topspace-center-position' to adjust the centering position.
 
+If non-nil, then always autocenter.  If nil, never autocenter.
 If set to a predicate function (function that returns a boolean value),
 then do auto-centering only when that function returns a non-nil value."
   :group 'topspace
@@ -121,8 +123,7 @@ then do auto-centering only when that function returns a non-nil value."
                  (const :tag "never" nil)
                  (function :tag "predicate function")))
 
-(defcustom topspace-center-position
-  0.4
+(defcustom topspace-center-position 0.4
   "Target position when centering buffers as a ratio of frame height.
 A value from 0 to 1 where lower values center buffers higher up in the screen.
 Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
@@ -136,8 +137,10 @@ This is useful in particular when `global-topspace-mode' is enabled but you want
 `topspace-mode' to be inactive in certain buffers or in any specific
 circumstance.  When inactive, `topspace-mode' will still technically be on,
 but will be effectively off and have no effect on the buffer.
+Note that if `topspace-active' returns non-nil but `topspace-mode' is off,
+`topspace-mode' will still be disabled.
 
-If t, then always be active.  If nil, never be active.
+If non-nil, then always be active.  If nil, never be active.
 If set to a predicate function (function that returns a boolean value),
 then be active only when that function returns a non-nil value."
   :type '(choice (const :tag "always" t)
@@ -176,20 +179,24 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
 (defun topspace--filter-args-scroll-down (&optional total-lines)
   "Run before `scroll-down' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-down'."
-  (setq total-lines (car total-lines))
-  (setq total-lines (or total-lines (- (topspace--window-height)
-                                       next-screen-context-lines)))
-  (setq topspace--total-lines-scrolling total-lines)
-  (list (topspace--scroll total-lines)))
+  (cond
+   ((not (topspace--enabled)) total-lines)
+   ((setq total-lines (car total-lines))
+    (setq total-lines (or total-lines (- (topspace--window-height)
+                                         next-screen-context-lines)))
+    (setq topspace--total-lines-scrolling total-lines)
+    (list (topspace--scroll total-lines)))))
 
 (defun topspace--filter-args-scroll-up (&optional total-lines)
   "Run before `scroll-up' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-up'."
-  (setq total-lines (car total-lines))
-  (setq total-lines (* (or total-lines (- (topspace--window-height)
-                                          next-screen-context-lines)) -1))
-  (setq topspace--total-lines-scrolling total-lines)
-  (list (* (topspace--scroll total-lines) -1)))
+  (cond
+   ((not (topspace--enabled)) total-lines)
+   ((setq total-lines (car total-lines))
+    (setq total-lines (* (or total-lines (- (topspace--window-height)
+                                            next-screen-context-lines)) -1))
+    (setq topspace--total-lines-scrolling total-lines)
+    (list (* (topspace--scroll total-lines) -1)))))
 
 (defun topspace--after-scroll (&optional total-lines)
   "Run after `scroll-up'/`scroll-down' for scrolling above the top line.
@@ -199,13 +206,15 @@ and no top space was present before scrolling but it should be after scrolling.
 The reason this is needed is because `topspace--put' only draws the overlay when
 `window-start` equals 1, which can only be true after the scroll command is run
 in the described case above."
-  (setq total-lines topspace--total-lines-scrolling)
-  (when (and (> topspace--window-start-before-scroll 1) (= (window-start) 1))
-    (let ((lines-already-scrolled (count-screen-lines
-                                   1 topspace--window-start-before-scroll)))
-      (setq total-lines (abs total-lines))
-      (set-window-start (selected-window) 1)
-      (topspace--put (- total-lines lines-already-scrolled)))))
+  (cond
+   ((not (topspace--enabled)))
+   ((setq total-lines topspace--total-lines-scrolling)
+    (when (and (> topspace--window-start-before-scroll 1) (= (window-start) 1))
+      (let ((lines-already-scrolled (count-screen-lines
+                                     1 topspace--window-start-before-scroll)))
+        (setq total-lines (abs total-lines))
+        (set-window-start (selected-window) 1)
+        (topspace--put (- total-lines lines-already-scrolled)))))))
 
 (defun topspace--after-recenter (&optional line-offset redisplay)
   "Recenter near the top of buffers by adding top space appropriately.
@@ -213,15 +222,17 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
   ;; redisplay is unused but needed since this function
   ;; must take the same arguments as `recenter'
   redisplay  ; remove flycheck warning for unused argument (see above)
-  (when (= (window-start) 1)
-    (unless line-offset
-      (setq line-offset (round (/ (topspace--window-height) 2))))
-    (when (< line-offset 0)
-      ;; subtracting 3 below made `recenter-top-bottom' act correctly
-      ;; when it moves point to bottom and top space is added to get there
-      (setq line-offset (- (- (topspace--window-height) line-offset) 3)))
-    (topspace--put (- line-offset (topspace--count-screen-lines (window-start)
-                                                                (point))))))
+  (cond
+   ((not (topspace--enabled)))
+   ((when (= (window-start) 1)
+      (unless line-offset
+        (setq line-offset (round (/ (topspace--window-height) 2))))
+      (when (< line-offset 0)
+        ;; subtracting 3 below made `recenter-top-bottom' act correctly
+        ;; when it moves point to bottom and top space is added to get there
+        (setq line-offset (- (- (topspace--window-height) line-offset) 3)))
+      (topspace--put (- line-offset (topspace--count-screen-lines (window-start)
+                                                                  (point))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Top space line height calculation
@@ -324,8 +335,9 @@ return unexpected value when END is in column 0. This fixes that issue."
 
 (defun topspace--put (&optional height)
   "Put/draw top space as an overlay with the target line height HEIGHT."
-  (let ((old-height (topspace--height)))
-    (unless (topspace--eval-choice-p topspace-active) (setq height 0))
+  (let ((old-height))
+    (unless (topspace--enabled) (setq height 0) (setq old-height 0))
+    (unless old-height (setq old-height (topspace--height)))
     (when height (setq height (topspace--set-height height)))
     (when (not height) (setq height old-height))
     (when (and (> height 0) (> height old-height))
@@ -446,26 +458,22 @@ Topspace will not be enabled for:
 
 (defun topspace--enable ()
   "Enable `topspace-mode' and do mode setup."
-  (cond ((topspace--enable-p)
-         (topspace--add-hooks)
-         (advice-add #'scroll-up :filter-args #'topspace--filter-args-scroll-up)
-         (advice-add #'scroll-down :filter-args
-                     #'topspace--filter-args-scroll-down)
-         (advice-add #'scroll-up :after #'topspace--after-scroll)
-         (advice-add #'scroll-down :after #'topspace--after-scroll)
-         (advice-add #'recenter :after #'topspace--after-recenter)
-         (dolist (window (get-buffer-window-list))
-           (with-selected-window window (topspace--put))))))
+  (when (topspace--enable-p)
+    (topspace--add-hooks)
+    (unless topspace--advice-added
+      (setq topspace--advice-added t)
+      (advice-add #'scroll-up :filter-args #'topspace--filter-args-scroll-up)
+      (advice-add #'scroll-down :filter-args
+                  #'topspace--filter-args-scroll-down)
+      (advice-add #'scroll-up :after #'topspace--after-scroll)
+      (advice-add #'scroll-down :after #'topspace--after-scroll)
+      (advice-add #'recenter :after #'topspace--after-recenter))
+    (dolist (window (get-buffer-window-list))
+      (with-selected-window window (topspace--put)))))
 
 (defun topspace--disable ()
   "Disable `topspace-mode' and do mode cleanup."
-  (message "disable")
   (remove-overlays 1 1 'topspace--remove-from-buffer-tag t)
-  (advice-remove #'scroll-up    #'topspace--filter-args-scroll-up)
-  (advice-remove #'scroll-down  #'topspace--filter-args-scroll-down)
-  (advice-remove #'scroll-up   #'topspace--after-scroll)
-  (advice-remove #'scroll-down #'topspace--after-scroll)
-  (advice-remove #'recenter #'topspace--after-recenter)
   (topspace--remove-hooks))
 
 ;;;###autoload
@@ -527,6 +535,10 @@ Otherwise behave as if called interactively."
 (define-globalized-minor-mode global-topspace-mode topspace-mode
   topspace-mode
   :group 'topspace)
+
+(defun topspace--enabled ()
+  "Return t only if both `topspace-mode' and `topspace-active' are non-nil."
+  (and (topspace--eval-choice-p topspace-active) topspace-mode))
 
 (provide 'topspace)
 
