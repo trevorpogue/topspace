@@ -8,8 +8,13 @@
 
 - feat: customize a `blacklist` of mode where `topspace` should not be activated [\#3](https://github.com/trevorpogue/topspace/issues/3)
 
+**Fixed bugs:**
+
+- Local topspace-mode affects other buffers, too [\#5](https://github.com/trevorpogue/topspace/issues/5)
+
 **Merged pull requests:**
 
+- Fix bug where topspace-mode doesn't work locally [\#6](https://github.com/trevorpogue/topspace/pull/6) ([trevorpogue](https://github.com/trevorpogue))
 - Add `topspace-active`, improve `topspace-autocenter-buffers` [\#4](https://github.com/trevorpogue/topspace/pull/4) ([trevorpogue](https://github.com/trevorpogue))
 
 ## 0.1.2 (2022-03-01)
