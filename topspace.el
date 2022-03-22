@@ -349,7 +349,7 @@ return unexpected value when END is in column 0. This fixes that issue."
 (defun topspace--text (height)
   "Return the topline text that appears in the top overlay with height HEIGHT."
   (let ((text "")
-        (indicator-line (topspace--eval-choice-p
+        (indicator-line (topspace--eval-choice
                          topspace-empty-line-indicator)))
     (setq indicator-line (cl-concatenate 'string indicator-line "\n"))
     (when (> height 0)
