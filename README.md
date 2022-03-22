@@ -84,6 +84,17 @@ then be active only when that function returns a non-nil value."
                  (const :tag "never" nil)
                  (function :tag "predicate function")))
 
+(defcustom topspace-empty-line-indicator
+  #'topspace-default-empty-line-indicator
+  "Text that will appear in each empty topspace line above the top text line.
+By default it is \"~\" when `indicate-empty-lines' is non-nil, otherwise \"\".
+Can be set to either a constant string or a function that returns a string."
+  :type '(choice 'string (function :tag "String function")))
+
+(defun topspace-default-empty-line-indicator ()
+  "Return \"~\" with face 'fringe if `indicate-empty-lines` non-nil else \"\"."
+  (if indicate-empty-lines (propertize "~" 'face 'fringe) ""))
+
 (defcustom topspace-mode-line " T"
   "Mode line lighter for Topspace.
 The value of this variable is a mode line template as in
