@@ -147,6 +147,17 @@ then be active only when that function returns a non-nil value."
                  (const :tag "never" nil)
                  (function :tag "predicate function")))
 
+(defcustom topspace-empty-line-indicator
+  #'topspace-default-empty-line-indicator
+  "Text that will appear in each empty topspace line above the top text line.
+By default it is \"~\" when `indicate-empty-lines' is non-nil, otherwise \"\".
+Can be set to either a constant string or a function that returns a string."
+  :type '(choice 'string (function :tag "String function")))
+
+(defun topspace-default-empty-line-indicator ()
+  "Return \"~\" with face 'fringe if `indicate-empty-lines` non-nil else \"\"."
+  (if indicate-empty-lines (propertize "~" 'face 'fringe) ""))
+
 (defcustom topspace-mode-line " T"
   "Mode line lighter for Topspace.
 The value of this variable is a mode line template as in
@@ -335,6 +346,18 @@ return unexpected value when END is in column 0. This fixes that issue."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Overlay drawing
 
+(defun topspace--text (height)
+  "Return the topline text that appears in the top overlay with height HEIGHT."
+  (let ((text "")
+        (indicator-line (topspace--eval-choice-p
+                         topspace-empty-line-indicator)))
+    (setq indicator-line (cl-concatenate 'string indicator-line "\n"))
+    (when (> height 0)
+      (dotimes (n height)
+        n ;; remove flycheck warning
+        (setq text (cl-concatenate 'string text indicator-line)))
+      text)))
+
 (defun topspace--draw (&optional height)
   "Put/draw top space as an overlay with the target line height HEIGHT."
   (let ((old-height))
@@ -352,8 +375,7 @@ return unexpected value when END is in column 0. This fixes that issue."
       (overlay-put topspace 'topspace--remove-from-window-tag
                    (selected-window))
       (overlay-put topspace 'topspace--remove-from-buffer-tag t)
-      (overlay-put topspace 'before-string (when (> height 0)
-                                             (make-string height ?\n))))
+      (overlay-put topspace 'before-string (topspace--text height)))
     height))
 
 (defun topspace--draw-increase-height (total-lines)
