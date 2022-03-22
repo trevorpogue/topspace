@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- topspace empty lines vs real new lines [\#7](https://github.com/trevorpogue/topspace/issues/7)
 - feat: customize a `blacklist` of mode where `topspace` should not be activated [\#3](https://github.com/trevorpogue/topspace/issues/3)
 
 **Fixed bugs:**
@@ -14,6 +15,7 @@
 
 **Merged pull requests:**
 
+- Add topspace-empty-line-indicator defcustom [\#8](https://github.com/trevorpogue/topspace/pull/8) ([trevorpogue](https://github.com/trevorpogue))
 - Fix bug where topspace-mode doesn't work locally [\#6](https://github.com/trevorpogue/topspace/pull/6) ([trevorpogue](https://github.com/trevorpogue))
 - Add `topspace-active`, improve `topspace-autocenter-buffers` [\#4](https://github.com/trevorpogue/topspace/pull/4) ([trevorpogue](https://github.com/trevorpogue))
 
