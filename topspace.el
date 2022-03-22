@@ -6,7 +6,7 @@
 ;; Maintainer: Trevor Edwin Pogue <trevor.pogue@gmail.com>
 ;; URL: https://github.com/trevorpogue/topspace
 ;; Keywords: convenience, scrolling, center, cursor, margin, padding
-;; Version: 0.1.0
+;; Version: 0.1.2
 ;; Package-Requires: ((emacs "25.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -94,7 +94,7 @@ space should be reduced in size or not")
   "Displaying top space before the first window config change can cause errors.
 This flag signals to wait until then to display top space.")
 
-(defvar topspace--advice-added nil "Keep track if advice-add done already.")
+(defvar topspace--advice-added nil "Keep track if `advice-add` done already.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
@@ -173,7 +173,7 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
     (setq new-topspace-height (topspace--correct-height
                                (+ old-topspace-height total-lines)))
     (setq topspace--window-start-before-scroll (window-start))
-    (topspace--put new-topspace-height)
+    (topspace--draw new-topspace-height)
     (- total-lines (- new-topspace-height old-topspace-height))))
 
 (defun topspace--filter-args-scroll-down (&optional total-lines)
@@ -203,8 +203,9 @@ TOTAL-LINES is used in the same way as in `scroll-up'."
 TOTAL-LINES is used in the same way as in `scroll-down'.
 This is needed when scrolling down (moving buffer text lower in the screen)
 and no top space was present before scrolling but it should be after scrolling.
-The reason this is needed is because `topspace--put' only draws the overlay when
-`window-start` equals 1, which can only be true after the scroll command is run
+The reason this is needed is because `topspace--draw' only draws the overlay
+when `window-start` equals 1, which can only be true after the scroll command is
+run
 in the described case above."
   (cond
    ((not (topspace--enabled)))
@@ -214,7 +215,7 @@ in the described case above."
                                      1 topspace--window-start-before-scroll)))
         (setq total-lines (abs total-lines))
         (set-window-start (selected-window) 1)
-        (topspace--put (- total-lines lines-already-scrolled)))))))
+        (topspace--draw (- total-lines lines-already-scrolled)))))))
 
 (defun topspace--after-recenter (&optional line-offset redisplay)
   "Recenter near the top of buffers by adding top space appropriately.
@@ -231,8 +232,9 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
         ;; subtracting 3 below made `recenter-top-bottom' act correctly
         ;; when it moves point to bottom and top space is added to get there
         (setq line-offset (- (- (topspace--window-height) line-offset) 3)))
-      (topspace--put (- line-offset (topspace--count-screen-lines (window-start)
-                                                                  (point))))))))
+      (topspace--draw (- line-offset (topspace--count-screen-lines
+                                      (window-start)
+                                      (point))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Top space line height calculation
@@ -309,7 +311,7 @@ which must be accounted for in the calling functions."
   "Return non-nil if buffer is allowed to be auto-centered.
 Buffers will not be auto-centered if `topspace-autocenter-buffers' returns nil
 or if the selected window is in a child-frame."
-  (and (topspace--eval-choice-p topspace-autocenter-buffers)
+  (and (topspace--eval-choice topspace-autocenter-buffers)
        (or ;; frame-parent is only provided in Emacs 26.1, so first check
         ;; if fhat function is fboundp.
         (not (fboundp 'frame-parent))
@@ -333,7 +335,7 @@ return unexpected value when END is in column 0. This fixes that issue."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Overlay drawing
 
-(defun topspace--put (&optional height)
+(defun topspace--draw (&optional height)
   "Put/draw top space as an overlay with the target line height HEIGHT."
   (let ((old-height))
     (unless (topspace--enabled) (setq height 0) (setq old-height 0))
@@ -343,7 +345,7 @@ return unexpected value when END is in column 0. This fixes that issue."
     (when (and (> height 0) (> height old-height))
       (let ((lines-past-max (topspace--total-lines-past-max height)))
         (when (> lines-past-max 0) (forward-line (* lines-past-max -1)))))
-    (let ((topspace (make-overlay 0 0)))
+    (let ((topspace (make-overlay 1 1)))
       (remove-overlays 1 1 'topspace--remove-from-window-tag
                        (selected-window))
       (overlay-put topspace 'window (selected-window))
@@ -354,26 +356,26 @@ return unexpected value when END is in column 0. This fixes that issue."
                                              (make-string height ?\n))))
     height))
 
-(defun topspace--put-increase-height (total-lines)
+(defun topspace--draw-increase-height (total-lines)
   "Increase the top space line height by the target amount of TOTAL-LINES."
-  (topspace--put (+ (topspace--height) total-lines)))
+  (topspace--draw (+ (topspace--height) total-lines)))
 
-(defun topspace--put-decrease-height (total-lines)
+(defun topspace--draw-decrease-height (total-lines)
   "Decrease the top space line height by the target amount of TOTAL-LINES."
-  (topspace--put (- (topspace--height) total-lines)))
+  (topspace--draw (- (topspace--height) total-lines)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Utilities
 
-(defun topspace--eval-choice-p (variable-or-function-p)
-  "Evaluate VARIABLE-OR-FUNCTION-P which is either boolean var/predicate func'n.
-If it is a variable, return its value, if it is a predicate function,
-evaluate the function and return its boolean return value.
-VARIABLE-OR-FUNCTION-P is most likely a user customizable variable of choice
+(defun topspace--eval-choice (variable-or-function)
+  "Evaluate VARIABLE-OR-FUNCTION which is either var or func'n of type var.
+If it is a variable, return its value, if it is a function,
+evaluate the function and return its return value.
+VARIABLE-OR-FUNCTION is most likely a user customizable variable of choice
 type."
-  (cond ((fboundp variable-or-function-p)
-         (funcall variable-or-function-p))
-        (t variable-or-function-p)))
+  (cond ((fboundp variable-or-function)
+         (funcall variable-or-function))
+        (t variable-or-function)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Hooks
@@ -387,7 +389,7 @@ type."
       (if (and (topspace--recenter-buffers-p)
                (not (= previous-height current-height)))
           (topspace-recenter-buffer)
-        (topspace--put))
+        (topspace--draw))
       (setf (alist-get window topspace--previous-window-heights)
             current-height))))
 
@@ -407,10 +409,10 @@ type."
         (setq total-lines-past-max (topspace--total-lines-past-max
                                     topspace-height))
         (when (> total-lines-past-max 0)
-          (topspace--put-decrease-height total-lines-past-max)))))
+          (topspace--draw-decrease-height total-lines-past-max)))))
   (when (and (= (window-start) 1)
              topspace--got-first-window-configuration-change)
-    (topspace--put)))
+    (topspace--draw)))
 
 (defvar topspace--hook-alist
   '((window-configuration-change-hook . topspace--window-configuration-change)
@@ -443,7 +445,7 @@ after first opening buffers and after window sizes change."
   (let ((center-height (topspace--height-to-make-buffer-centered)))
     (setf (alist-get (selected-window) topspace--autocenter-heights)
           center-height)
-    (topspace--put center-height)))
+    (topspace--draw center-height)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Mode definition and setup
@@ -469,7 +471,7 @@ Topspace will not be enabled for:
       (advice-add #'scroll-down :after #'topspace--after-scroll)
       (advice-add #'recenter :after #'topspace--after-recenter))
     (dolist (window (get-buffer-window-list))
-      (with-selected-window window (topspace--put)))))
+      (with-selected-window window (topspace--draw)))))
 
 (defun topspace--disable ()
   "Disable `topspace-mode' and do mode cleanup."
@@ -538,7 +540,7 @@ Otherwise behave as if called interactively."
 
 (defun topspace--enabled ()
   "Return t only if both `topspace-mode' and `topspace-active' are non-nil."
-  (and (topspace--eval-choice-p topspace-active) topspace-mode))
+  (and (topspace--eval-choice topspace-active) topspace-mode))
 
 (provide 'topspace)
 
