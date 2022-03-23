@@ -152,14 +152,19 @@ then be active only when that function returns a non-nil value."
   "Text that will appear in each empty topspace line above the top text line.
 Can be set to either a constant string or a function that returns a string.
 
+The conditions in which the indicator string is present are also customizable
+by setting `topspace-empty-line-indicator' to a function, where the function
+returns \"\" (an empty string) under any conditions in which you don't want
+the indicator string to be shown.
+
 By default it will show the empty-line bitmap in the left fringe
 if `indicate-empty-lines' is non-nil, otherwise nothing.
-The default bitmap is the one that the `empty-line' logical fringe indicator
-maps to in `fringe-indicator-alist'.
 This is done by adding a 'display property to the string (see
 `topspace-default-empty-line-indicator' for more details).
+The default bitmap is the one that the `empty-line' logical fringe indicator
+maps to in `fringe-indicator-alist'.
 
- You can alternatively show a string in the body of each top space line by
+You can alternatively show the string text in the body of each top space line by
 having `topspace-empty-line-indicator' return a string without the 'display
 property added.  If you do this you may be interested in also changing the
 string's face like so: (propertize indicator-string 'face 'fringe)."
@@ -167,15 +172,14 @@ string's face like so: (propertize indicator-string 'face 'fringe)."
 
 (defun topspace-default-empty-line-indicator ()
   "Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
-
+This is done by adding a 'display property to the returned string.
 The bitmap used is the one that the `empty-line' logical fringe indicator
 maps to in `fringe-indicator-alist'."
   (if indicate-empty-lines
-      (let ((bitmap (catch 'tag
-                      (dolist (x fringe-indicator-alist)
-                        (when (eq (car x) 'empty-line)
-                          (throw 'tag (cdr x)))))))
-      (propertize " " 'display (list `left-fringe bitmap `fringe)))
+      (let ((bitmap (catch 'tag (dolist (x fringe-indicator-alist)
+                                  (when (eq (car x) 'empty-line)
+                                    (throw 'tag (cdr x)))))))
+        (propertize " " 'display (list `left-fringe bitmap `fringe)))
     ""))
 
 (defcustom topspace-mode-line " T"
@@ -236,8 +240,7 @@ This is needed when scrolling down (moving buffer text lower in the screen)
 and no top space was present before scrolling but it should be after scrolling.
 The reason this is needed is because `topspace--draw' only draws the overlay
 when `window-start` equals 1, which can only be true after the scroll command is
-run
-in the described case above."
+run in the described case above."
   (cond
    ((not (topspace--enabled)))
    ((setq total-lines topspace--total-lines-scrolling)
@@ -260,10 +263,12 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
       (unless line-offset
         (setq line-offset (round (/ (topspace--window-height) 2))))
       (when (< line-offset 0)
-        ;; subtracting 3 below made `recenter-top-bottom' act correctly
+        ;; subtracting 1 below made `recenter-top-bottom' act correctly
         ;; when it moves point to bottom and top space is added to get there
-        (setq line-offset (- (- (topspace--window-height) line-offset) 3)))
-      (topspace--draw (- line-offset (topspace--count-screen-lines
+        (setq line-offset (- (- (topspace--window-height) line-offset)
+                             (topspace--context-lines)
+                             1)))
+      (topspace--draw (- line-offset (topspace--count-lines
                                       (window-start)
                                       (point))))))))
 
@@ -297,12 +302,17 @@ If no previous value exists, return the appropriate value to
 Valid top space line heights are:
 - never negative,
 - only positive when `window-start' equals 1,
-- not larger than `topspace--window-height' minus `next-screen-context-lines'."
-  (let ((max-height (- (topspace--window-height) next-screen-context-lines)))
+- not larger than `topspace--window-height' minus `topspace--context-lines'."
+  (let ((max-height (- (topspace--window-height) (topspace--context-lines))))
     (when (> (window-start) 1) (setq height 0))
     (when (< height 0) (setq height 0))
     (when (> height max-height) (setq height max-height)))
   height)
+
+(defun topspace--context-lines ()
+  "Return how many lines away from `window-end' the cursor can get.
+This is relevant when scrolling in such a way that the cursor tries to
+move past `window-end'." 1)
 
 (defun topspace--total-lines-past-max (&optional topspace-height)
   "Used when making sure top space height does not push cursor off-screen.
@@ -310,7 +320,7 @@ Return how many lines past the bottom of the window the cursor would get pushed
 if setting the top space to the target value TOPSPACE-HEIGHT.
 Any value above 0 flags that the target TOPSPACE-HEIGHT is too large."
   (- (topspace--current-line-plus-topspace topspace-height)
-     (- (topspace--window-height) next-screen-context-lines)))
+     (- (topspace--window-height) (topspace--context-lines))))
 
 (defun topspace--current-line-plus-topspace (&optional topspace-height)
   "Used when making sure top space height does not push cursor off-screen.
@@ -327,9 +337,9 @@ Return the current line plus the top space height TOPSPACE-HEIGHT."
                        (round (/ buffer-height 2)))
                     (window-top-line (selected-window))))
     (when (> (+ result buffer-height) (- window-height
-                                         next-screen-context-lines))
+                                         (topspace--context-lines)))
       (setq result (- (- window-height buffer-height)
-                      next-screen-context-lines)))
+                      (topspace--context-lines))))
     result))
 
 (defun topspace--center-frame-line ()
@@ -350,9 +360,9 @@ or if the selected window is in a child-frame."
 
 (defun topspace--window-height ()
   "Return the number of screen lines in the selected window rounded up."
-  (ceiling (window-screen-lines)))
+  (floor (window-screen-lines)))
 
-(defun topspace--count-screen-lines (start end)
+(defun topspace--count-lines (start end)
   "Return screen lines between START and END.
 Like `count-screen-lines' except `count-screen-lines' will
 return unexpected value when END is in column 0. This fixes that issue."
@@ -387,7 +397,8 @@ return unexpected value when END is in column 0. This fixes that issue."
     (when (not height) (setq height old-height))
     (when (and (> height 0) (> height old-height))
       (let ((lines-past-max (topspace--total-lines-past-max height)))
-        (when (> lines-past-max 0) (forward-line (* lines-past-max -1)))))
+        (when (> lines-past-max 0)
+          (topspace--previous-line (ceiling lines-past-max)))))
     (let ((topspace (make-overlay 1 1)))
       (remove-overlays 1 1 'topspace--remove-from-window-tag
                        (selected-window))
@@ -419,6 +430,21 @@ type."
          (funcall variable-or-function))
         (t variable-or-function)))
 
+(defun topspace--previous-line (&optional arg try-vscroll)
+  "Functionally identical to `previous-line' but for non-interactive use.
+Use TRY-VSCROLL to control whether to vscroll tall
+lines: if either `auto-window-vscroll' or TRY-VSCROLL is nil, this
+function will not vscroll.
+ARG defaults to 1."
+  (or arg (setq arg 1))
+  (if (called-interactively-p 'interactive)
+      (condition-case err
+          (line-move (- arg) nil nil try-vscroll)
+        ((beginning-of-buffer end-of-buffer)
+         (signal (car err) (cdr err))))
+    (line-move (- arg) nil nil try-vscroll))
+  nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Hooks
 
@@ -427,7 +453,7 @@ type."
   (setq topspace--got-first-window-configuration-change t)
   (let ((current-height (topspace--window-height)) (window (selected-window)))
     (let ((previous-height (alist-get window topspace--previous-window-heights
-                                      current-height)))
+                                      0)))
       (if (and (topspace--recenter-buffers-p)
                (not (= previous-height current-height)))
           (topspace-recenter-buffer)
@@ -437,12 +463,13 @@ type."
 
 (defun topspace--pre-command ()
   "Reduce the amount of code that must execute in `topspace--post-command'."
-  (setq-local topspace--pre-command-point (window-start))
+  (setq-local topspace--pre-command-point (point))
   (setq-local topspace--pre-command-window-start (window-start)))
 
 (defun topspace--post-command ()
   "Gradually reduce top space before the cursor will move past the bottom."
   (when (and (= topspace--pre-command-window-start 1)
+             (> (point) topspace--pre-command-point)
              (< (- (line-number-at-pos (point))
                    (line-number-at-pos topspace--pre-command-point))
                 (topspace--window-height)))

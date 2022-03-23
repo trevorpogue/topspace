@@ -11,8 +11,7 @@
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/155176914-87390537-10f0-4ee5-9b37-cd798f07df27.gif"/></p>
 
-TopSpace is an Emacs minor mode that allows you to scroll down and recenter top lines
-by automatically drawing an upper margin/padding above the top line
+TopSpace is an Emacs minor mode that allows you to scroll down and recenter top lines by automatically drawing an upper margin/padding above the top line
 as you scroll down or recenter top text.
 
 TopSpace is:
@@ -89,30 +88,34 @@ then be active only when that function returns a non-nil value."
   "Text that will appear in each empty topspace line above the top text line.
 Can be set to either a constant string or a function that returns a string.
 
+The conditions in which the indicator string is present are also customizable
+by setting `topspace-empty-line-indicator' to a function, where the function
+returns \"\" (an empty string) under any conditions in which you don't want
+the indicator string to be shown.
+
 By default it will show the empty-line bitmap in the left fringe
 if `indicate-empty-lines' is non-nil, otherwise nothing.
-The default bitmap is the one that the `empty-line' logical fringe indicator
-maps to in `fringe-indicator-alist'.
 This is done by adding a 'display property to the string (see
 `topspace-default-empty-line-indicator' for more details).
+The default bitmap is the one that the `empty-line' logical fringe indicator
+maps to in `fringe-indicator-alist'.
 
- You can alternatively show a string in the body of each top space line by
+You can alternatively show the string text in the body of each top space line by
 having `topspace-empty-line-indicator' return a string without the 'display
-property added. If you do this you may be interested in also changing the
+property added.  If you do this you may be interested in also changing the
 string's face like so: (propertize indicator-string 'face 'fringe)."
   :type '(choice 'string (function :tag "String function")))
 
 (defun topspace-default-empty-line-indicator ()
   "Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
-
+This is done by adding a 'display property to the returned string.
 The bitmap used is the one that the `empty-line' logical fringe indicator
 maps to in `fringe-indicator-alist'."
   (if indicate-empty-lines
-      (let ((bitmap (catch 'tag
-                      (dolist (x fringe-indicator-alist)
-                        (when (eq (car x) 'empty-line)
-                          (throw 'tag (cdr x)))))))
-      (propertize " " 'display (list `left-fringe bitmap `fringe)))
+      (let ((bitmap (catch 'tag (dolist (x fringe-indicator-alist)
+                                  (when (eq (car x) 'empty-line)
+                                    (throw 'tag (cdr x)))))))
+        (propertize " " 'display (list `left-fringe bitmap `fringe)))
     ""))
 
 (defcustom topspace-mode-line " T"
