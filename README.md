@@ -87,13 +87,33 @@ then be active only when that function returns a non-nil value."
 (defcustom topspace-empty-line-indicator
   #'topspace-default-empty-line-indicator
   "Text that will appear in each empty topspace line above the top text line.
-By default it is \"~\" when `indicate-empty-lines' is non-nil, otherwise \"\".
-Can be set to either a constant string or a function that returns a string."
+Can be set to either a constant string or a function that returns a string.
+
+By default it will show the empty-line bitmap in the left fringe
+if `indicate-empty-lines' is non-nil, otherwise nothing.
+The default bitmap is the one that the `empty-line' logical fringe indicator
+maps to in `fringe-indicator-alist'.
+This is done by adding a 'display property to the string (see
+`topspace-default-empty-line-indicator' for more details).
+
+ You can alternatively show a string in the body of each top space line by
+having `topspace-empty-line-indicator' return a string without the 'display
+property added. If you do this you may be interested in also changing the
+string's face like so: (propertize indicator-string 'face 'fringe)."
   :type '(choice 'string (function :tag "String function")))
 
 (defun topspace-default-empty-line-indicator ()
-  "Return \"~\" with face 'fringe if `indicate-empty-lines` non-nil else \"\"."
-  (if indicate-empty-lines (propertize "~" 'face 'fringe) ""))
+  "Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
+
+The bitmap used is the one that the `empty-line' logical fringe indicator
+maps to in `fringe-indicator-alist'."
+  (if indicate-empty-lines
+      (let ((bitmap (catch 'tag
+                      (dolist (x fringe-indicator-alist)
+                        (when (eq (car x) 'empty-line)
+                          (throw 'tag (cdr x)))))))
+      (propertize " " 'display (list `left-fringe bitmap `fringe)))
+    ""))
 
 (defcustom topspace-mode-line " T"
   "Mode line lighter for Topspace.
