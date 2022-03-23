@@ -347,7 +347,7 @@ return unexpected value when END is in column 0. This fixes that issue."
 ;;; Overlay drawing
 
 (defun topspace--text (height)
-  "Return the topline text that appears in the top overlay with height HEIGHT."
+  "Return the topspace text that appears in the top overlay with height HEIGHT."
   (let ((text "")
         (indicator-line (topspace--eval-choice
                          topspace-empty-line-indicator)))
@@ -359,7 +359,7 @@ return unexpected value when END is in column 0. This fixes that issue."
       text)))
 
 (defun topspace--draw (&optional height)
-  "Put/draw top space as an overlay with the target line height HEIGHT."
+  "Draw top space as an overlay with the target line height HEIGHT."
   (let ((old-height))
     (unless (topspace--enabled) (setq height 0) (setq old-height 0))
     (unless old-height (setq old-height (topspace--height)))
