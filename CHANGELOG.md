@@ -12,6 +12,7 @@
 **Fixed bugs:**
 
 - Local topspace-mode affects other buffers, too [\#5](https://github.com/trevorpogue/topspace/issues/5)
+- Support buffers with varying line heights [\#10](https://github.com/trevorpogue/topspace/pull/10) ([trevorpogue](https://github.com/trevorpogue))
 
 **Merged pull requests:**
 
