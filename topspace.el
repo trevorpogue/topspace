@@ -245,7 +245,7 @@ run in the described case above."
    ((not (topspace--enabled)))
    ((setq total-lines topspace--total-lines-scrolling)
     (when (and (> topspace--window-start-before-scroll 1) (= (window-start) 1))
-      (let ((lines-already-scrolled (count-screen-lines
+      (let ((lines-already-scrolled (topspace--count-lines
                                      1 topspace--window-start-before-scroll)))
         (setq total-lines (abs total-lines))
         (set-window-start (selected-window) 1)
@@ -261,7 +261,7 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
    ((not (topspace--enabled)))
    ((when (= (window-start) 1)
       (unless line-offset
-        (setq line-offset (round (/ (topspace--window-height) 2))))
+        (setq line-offset (/ (topspace--window-height) 2)))
       (when (< line-offset 0)
         ;; subtracting 1 below made `recenter-top-bottom' act correctly
         ;; when it moves point to bottom and top space is added to get there
@@ -325,16 +325,16 @@ Any value above 0 flags that the target TOPSPACE-HEIGHT is too large."
 (defun topspace--current-line-plus-topspace (&optional topspace-height)
   "Used when making sure top space height does not push cursor off-screen.
 Return the current line plus the top space height TOPSPACE-HEIGHT."
-  (+ (count-screen-lines (window-start) (point))
+  (+ (topspace--count-lines (window-start) (point))
      (or topspace-height (topspace--height))))
 
 (defun topspace--height-to-make-buffer-centered ()
   "Return the necessary top space height to center selected window's buffer."
-  (let ((buffer-height (count-screen-lines (window-start) (window-end)))
+  (let ((buffer-height (topspace--count-lines (window-start) (window-end)))
         (result)
         (window-height (topspace--window-height)))
     (setq result (- (- (topspace--center-frame-line)
-                       (round (/ buffer-height 2)))
+                       (/ buffer-height 2))
                     (window-top-line (selected-window))))
     (when (> (+ result buffer-height) (- window-height
                                          (topspace--context-lines)))
@@ -346,7 +346,7 @@ Return the current line plus the top space height TOPSPACE-HEIGHT."
   "Return a center line number based on `topspace-center-position'.
 The return value is only valid for windows starting at the top of the frame,
 which must be accounted for in the calling functions."
-  (round (* (frame-text-lines) topspace-center-position)))
+  (* (frame-text-lines) topspace-center-position))
 
 (defun topspace--recenter-buffers-p ()
   "Return non-nil if buffer is allowed to be auto-centered.
@@ -360,18 +360,50 @@ or if the selected window is in a child-frame."
 
 (defun topspace--window-height ()
   "Return the number of screen lines in the selected window rounded up."
-  (floor (window-screen-lines)))
+  (float (floor (window-screen-lines))))
 
-(defun topspace--count-lines (start end)
-  "Return screen lines between START and END.
+(defun topspace--count-pixel-height (start end)
+  "Return total pixels between points START and END as if they're both visible."
+  (setq end (min end (point-max)))
+  (setq start (max start (point-min)))
+  (let ((result 0))
+    (save-excursion
+      (goto-char start)
+      (while (< (point) end)
+        (setq result (+ result (* (vertical-motion 1) (line-pixel-height))))))
+    result))
+
+(defun topspace--count-lines-slower (start end)
+  "Return screen lines between points START and END.
 Like `count-screen-lines' except `count-screen-lines' will
 return unexpected value when END is in column 0. This fixes that issue."
-  (let ((adjustment 0) (column 0))
-    (save-excursion
-      (goto-char end)
-      (setq column (car (nth 6 (posn-at-point))))
-      (unless (= column 0) (setq adjustment -1)))
-    (+ (count-screen-lines start end) adjustment)))
+  (/ (topspace--count-pixel-height start end) (float (default-line-height))))
+
+(defun topspace--count-lines (start end)
+  "Return screen lines between points START and END.
+Like `count-screen-lines' except `count-screen-lines' will
+return unexpected value when END is in column 0. This fixes that issue.
+This function also tries to first count the lines using a potentially faster
+technique involving `window-absolute-pixel-position'.
+If that doesn't work it uses `topspace--count-lines-slower'."
+  (let ((old-end end) (old-start start))
+    (setq end (min end (- (window-end) 1)))
+    (setq start (max start (window-start)))
+    (let ((end-y (window-absolute-pixel-position end))
+          (start-y (window-absolute-pixel-position start)))
+      (cond
+       ((and end-y start-y)
+        ;; first try counting lines by getting the pixel difference
+        ;; between end and start and dividing by `default-line-height'
+        (+
+         (/ (- (cdr end-y) (cdr start-y))
+            (float (default-line-height)))
+         (if (> old-end end) (topspace--count-lines-slower end old-end) 0)
+         (if (< old-start start)
+             (topspace--count-lines-slower old-start start) 0)))
+       (t ;; if the pixel method above doesn't work do this slower method
+        ;; (it won't work if either START or END are not visible in window)
+        (topspace--count-lines-slower start old-end))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Overlay drawing
@@ -383,9 +415,14 @@ return unexpected value when END is in column 0. This fixes that issue."
                          topspace-empty-line-indicator)))
     (setq indicator-line (cl-concatenate 'string indicator-line "\n"))
     (when (> height 0)
-      (dotimes (n height)
+      (dotimes (n (1- (floor height)))
         n ;; remove flycheck warning
         (setq text (cl-concatenate 'string text indicator-line)))
+      (setq indicator-line
+            (propertize indicator-line 'line-height
+                        (round (* (+ 1.0 (- height (floor height)))
+                                  (default-line-height)))))
+      (setq text (cl-concatenate 'string text indicator-line))
       text)))
 
 (defun topspace--draw (&optional height)
