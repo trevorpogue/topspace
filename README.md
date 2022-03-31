@@ -1,5 +1,5 @@
 <h1 align="center"> TopSpace </h1>
-<p align="center">Scroll down & recenter top lines in Emacs / get upper margins/padding.</p>
+<p align="center">Scroll down & recenter top lines in Emacs.</p>
 
 <!-- cursor -->
 
@@ -40,6 +40,19 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 ```
 (global-topspace-mode 1)
 ```
+# Usage
+### Just install and go
+No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. 
+
+# Extra commands
+
+### `topspace-recenter-buffer`
+* Add enough top space in the selected window to center small buffers.
+Top space will not be added if the number of text lines in the buffer is larger
+than or close to the selected window's height.
+Customize `topspace-center-position` to adjust the centering position.
+Customize `topspace-autocenter-buffers` to run this command automatically
+after first opening buffers and after window sizes change.
 
 # Customization
 ```elisp
@@ -134,19 +147,9 @@ By default this is left empty for users to set with their own
 preferred bindings.")
 ```
 
-# Extra commands
-
-### `topspace-recenter-buffer`
-* Add enough top space in the selected window to center small buffers.
-Top space will not be added if the number of text lines in the buffer is larger
-than or close to the selected window's height.
-Customize `topspace-center-position` to adjust the centering position.
-Customize `topspace-autocenter-buffers` to run this command automatically
-after first opening buffers and after window sizes change.
-
 # How it works under the hood
 
-The "upper margin" is created by drawing an overlay before
+The "upper margin" is created by drawing an [overlay](https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html) before
 window-start containing newline characters.  As you scroll above the
 top line, more newline characters are added or removed accordingly.
 
