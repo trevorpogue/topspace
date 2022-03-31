@@ -41,7 +41,7 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 (global-topspace-mode 1)
 ```
 # Usage
-### Just install and go
+### Just enable and go
 No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. 
 
 # Extra commands
