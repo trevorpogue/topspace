@@ -209,7 +209,9 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
                                (+ old-topspace-height total-lines)))
     (setq topspace--window-start-before-scroll (window-start))
     (topspace--draw new-topspace-height)
-    (- total-lines (- new-topspace-height old-topspace-height))))
+    (setq total-lines
+          (- total-lines (- new-topspace-height old-topspace-height)))
+    (if (display-graphic-p) total-lines (round total-lines))))
 
 (defun topspace--filter-args-scroll-down (&optional total-lines)
   "Run before `scroll-down' for scrolling above the top line.
@@ -360,9 +362,7 @@ or if the selected window is in a child-frame."
 
 (defun topspace--window-height ()
   "Return the number of screen lines in the selected window rounded up."
-  (if (display-graphic-p)
-      (float (floor (window-screen-lines)))
-    (floor (window-screen-lines))))
+  (float (floor (window-screen-lines))))
 
 (defun topspace--count-pixel-height (start end)
   "Return total pixels between points START and END as if they're both visible."
