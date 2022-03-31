@@ -360,7 +360,9 @@ or if the selected window is in a child-frame."
 
 (defun topspace--window-height ()
   "Return the number of screen lines in the selected window rounded up."
-  (float (floor (window-screen-lines))))
+  (if (display-graphic-p)
+      (float (floor (window-screen-lines)))
+    (floor (window-screen-lines))))
 
 (defun topspace--count-pixel-height (start end)
   "Return total pixels between points START and END as if they're both visible."
@@ -529,7 +531,7 @@ ARG defaults to 1."
 (defun topspace--add-hooks ()
   "Add hooks defined in `topspace--hook-alist'."
   (dolist (hook-func-pair topspace--hook-alist)
-    (add-hook (car hook-func-pair) (cdr hook-func-pair) 0 t)))
+    (add-hook (car hook-func-pair) (cdr hook-func-pair) -90 t)))
 
 (defun topspace--remove-hooks ()
   "Remove hooks defined in `topspace--hook-alist'."
