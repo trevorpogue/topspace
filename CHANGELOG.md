@@ -1,25 +1,19 @@
 # Changelog
 
-## [Unreleased](https://github.com/trevorpogue/topspace/tree/HEAD)
+## [0.2.0](https://github.com/trevorpogue/topspace/tree/0.2.0) (2022-04-12)
 
-[Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.1.2...HEAD)
+[Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.1.2...0.2.0)
 
 **Implemented enhancements:**
 
-- topspace empty lines vs real new lines [\#7](https://github.com/trevorpogue/topspace/issues/7)
-- feat: customize a `blacklist` of mode where `topspace` should not be activated [\#3](https://github.com/trevorpogue/topspace/issues/3)
+- Put topspace-empty-line-indicator inside left fringe [\#9](https://github.com/trevorpogue/topspace/pull/9) ([trevorpogue](https://github.com/trevorpogue))
+- Add topspace-empty-line-indicator defcustom [\#8](https://github.com/trevorpogue/topspace/pull/8) ([trevorpogue](https://github.com/trevorpogue))
+- Add `topspace-active`, improve `topspace-autocenter-buffers` [\#4](https://github.com/trevorpogue/topspace/pull/4) ([trevorpogue](https://github.com/trevorpogue))
 
 **Fixed bugs:**
 
-- Local topspace-mode affects other buffers, too [\#5](https://github.com/trevorpogue/topspace/issues/5)
 - Support buffers with varying line heights [\#10](https://github.com/trevorpogue/topspace/pull/10) ([trevorpogue](https://github.com/trevorpogue))
-
-**Merged pull requests:**
-
-- Put topspace-empty-line-indicator inside left fringe [\#9](https://github.com/trevorpogue/topspace/pull/9) ([trevorpogue](https://github.com/trevorpogue))
-- Add topspace-empty-line-indicator defcustom [\#8](https://github.com/trevorpogue/topspace/pull/8) ([trevorpogue](https://github.com/trevorpogue))
 - Fix bug where topspace-mode doesn't work locally [\#6](https://github.com/trevorpogue/topspace/pull/6) ([trevorpogue](https://github.com/trevorpogue))
-- Add `topspace-active`, improve `topspace-autocenter-buffers` [\#4](https://github.com/trevorpogue/topspace/pull/4) ([trevorpogue](https://github.com/trevorpogue))
 
 ## 0.1.2 (2022-03-01)
 
