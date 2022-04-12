@@ -6,7 +6,7 @@
 ;; Maintainer: Trevor Edwin Pogue <trevor.pogue@gmail.com>
 ;; URL: https://github.com/trevorpogue/topspace
 ;; Keywords: convenience, scrolling, center, cursor, margin, padding
-;; Version: 0.1.2
+;; Version: 0.2.0
 ;; Package-Requires: ((emacs "25.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -39,7 +39,7 @@
 ;;   seamlessly with `centered-cursor-mode' to keep the cursor
 ;;   centered all the way to the top line.
 
-;; How it works under the hood:
+;; How it works:
 ;; The "upper margin" is created by drawing an overlay before
 ;; window-start containing newline characters.  As you scroll above the
 ;; top line, more newline characters are added or removed accordingly.
@@ -606,7 +606,7 @@ TopSpace is:
   seamlessly with `centered-cursor-mode' to keep the cursor
   centered all the way to the top line.
 
-How it works under the hood:
+How it works:
 The \"upper margin\" is created by drawing an overlay before
 window-start containing newline characters.  As you scroll above the
 top line, more newline characters are added or removed accordingly.

@@ -19,6 +19,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           sinceTag: v0.1.2
           base: HISTORY.md
+          issues: no
+          futureRelease: 0.2.0
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4

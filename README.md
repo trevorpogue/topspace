@@ -147,7 +147,7 @@ By default this is left empty for users to set with their own
 preferred bindings.")
 ```
 
-# How it works under the hood
+# How it works
 
 The "upper margin" is created by drawing an [overlay](https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html) before
 window-start containing newline characters.  As you scroll above the
