@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# set -e
+this_scripts_dir="$(cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)"
+cd $this_scripts_dir
+emacs -Q \
+      -l ../topspace.el \
+      -l ./director.el \
+      -l ./director-bootstrap.el \
+      -l ./tests.el
+if [ $? -eq 0 ]; then
+    echo PASS
+else
+    echo FAIL
+fi
