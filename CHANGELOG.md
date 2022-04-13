@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/trevorpogue/topspace/tree/HEAD)
+
+[Full Changelog](https://github.com/trevorpogue/topspace/compare/0.2.0...HEAD)
+
+**Fixed bugs:**
+
+- Fix inability to use scrolling commands interactively [\#11](https://github.com/trevorpogue/topspace/pull/11) ([trevorpogue](https://github.com/trevorpogue))
+
 ## [0.2.0](https://github.com/trevorpogue/topspace/tree/0.2.0) (2022-04-12)
 
 [Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.1.2...0.2.0)
