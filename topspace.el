@@ -216,9 +216,10 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
 (defun topspace--filter-args-scroll-down (&optional total-lines)
   "Run before `scroll-down' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-down'."
+  (setq total-lines (car total-lines))
   (cond
    ((not (topspace--enabled)) total-lines)
-   ((setq total-lines (car total-lines))
+   (t
     (setq total-lines (or total-lines (- (topspace--window-height)
                                          next-screen-context-lines)))
     (setq topspace--total-lines-scrolling total-lines)
@@ -227,9 +228,10 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
 (defun topspace--filter-args-scroll-up (&optional total-lines)
   "Run before `scroll-up' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-up'."
+  (setq total-lines (car total-lines))
   (cond
    ((not (topspace--enabled)) total-lines)
-   ((setq total-lines (car total-lines))
+   (t
     (setq total-lines (* (or total-lines (- (topspace--window-height)
                                             next-screen-context-lines)) -1))
     (setq topspace--total-lines-scrolling total-lines)
