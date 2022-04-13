@@ -96,6 +96,9 @@ This flag signals to wait until then to display top space.")
 
 (defvar topspace--advice-added nil "Keep track if `advice-add` done already.")
 
+(defvar-local topspace--previous-mwheel-scroll-down-function nil
+  "Previous mwheel function that does the job of scrolling downward.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
 
@@ -212,6 +215,18 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
     (setq total-lines
           (- total-lines (- new-topspace-height old-topspace-height)))
     (if (display-graphic-p) total-lines (round total-lines))))
+
+(defun topspace--mwheel-scroll-down-function (&optional total-lines)
+  "Run instead of `mwheel-scroll-down-function' for scrolling down.
+For some reason this function only works if it is different from
+`scroll-down' in the sense that
+it does nothing in the case that TOTAL-LINES is nil.
+TODO: figure out exactly why this is the case."
+  (cond
+   ((not (topspace--enabled))
+    (scroll-down total-lines))
+   (total-lines
+    (scroll-down total-lines))))
 
 (defun topspace--filter-args-scroll-down (&optional total-lines)
   "Run before `scroll-down' for scrolling above the top line.
@@ -580,11 +595,17 @@ Topspace will not be enabled for:
       (advice-add #'scroll-up :after #'topspace--after-scroll)
       (advice-add #'scroll-down :after #'topspace--after-scroll)
       (advice-add #'recenter :after #'topspace--after-recenter))
+    (setq topspace--previous-mwheel-scroll-down-function
+          mwheel-scroll-down-function)
+    (setq mwheel-scroll-down-function
+          #'topspace--mwheel-scroll-down-function)
     (dolist (window (get-buffer-window-list))
       (with-selected-window window (topspace--draw)))))
 
 (defun topspace--disable ()
   "Disable `topspace-mode' and do mode cleanup."
+  (setq mwheel-scroll-down-function
+        topspace--previous-mwheel-scroll-down-function)
   (remove-overlays 1 1 'topspace--remove-from-buffer-tag t)
   (topspace--remove-hooks))
 
