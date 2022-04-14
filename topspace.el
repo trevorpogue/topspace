@@ -96,9 +96,6 @@ This flag signals to wait until then to display top space.")
 
 (defvar topspace--advice-added nil "Keep track if `advice-add` done already.")
 
-(defvar-local topspace--previous-mwheel-scroll-down-function nil
-  "Previous mwheel function that does the job of scrolling downward.")
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
 
@@ -216,18 +213,6 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
           (- total-lines (- new-topspace-height old-topspace-height)))
     (if (display-graphic-p) total-lines (round total-lines))))
 
-(defun topspace--mwheel-scroll-down-function (&optional total-lines)
-  "Run instead of `mwheel-scroll-down-function' for scrolling down.
-For some reason this function only works if it is different from
-`scroll-down' in the sense that
-it does nothing in the case that TOTAL-LINES is nil.
-TODO: figure out exactly why this is the case."
-  (cond
-   ((not (topspace--enabled))
-    (scroll-down total-lines))
-   (total-lines
-    (scroll-down total-lines))))
-
 (defun topspace--filter-args-scroll-down (&optional total-lines)
   "Run before `scroll-down' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-down'."
@@ -238,7 +223,23 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
     (setq total-lines (or total-lines (- (topspace--window-height)
                                          next-screen-context-lines)))
     (setq topspace--total-lines-scrolling total-lines)
-    (list (topspace--scroll total-lines)))))
+    (cond
+     ((and (= (window-start) 1) (> total-lines 0))
+      ;; Prevent "Begining of buffer" error/message when scrolling above
+      ;; top line by passing 0 to `scroll-down' when relevant:
+      (let ((max-height
+             (- (topspace--window-height) (topspace--context-lines)))
+            (old-height (topspace--height)))
+        (topspace--scroll total-lines)
+        ;; But if top space is at its max height, then allow the
+        ;; "Begining of buffer" error/message to occur:
+        (if (= old-height max-height)
+            (list total-lines)
+          (list 0))))
+     (t ;; if no top space present then we don't have to worry about
+      ;; signalling the "Begining of buffer" error/message
+      ;; (so can skip the above conditions for avoiding this error)
+      (list (topspace--scroll total-lines)))))))
 
 (defun topspace--filter-args-scroll-up (&optional total-lines)
   "Run before `scroll-up' for scrolling above the top line.
@@ -262,7 +263,8 @@ when `window-start` equals 1, which can only be true after the scroll command is
 run in the described case above."
   (cond
    ((not (topspace--enabled)))
-   ((setq total-lines topspace--total-lines-scrolling)
+   (t
+    (setq total-lines topspace--total-lines-scrolling)
     (when (and (> topspace--window-start-before-scroll 1) (= (window-start) 1))
       (let ((lines-already-scrolled (topspace--count-lines
                                      1 topspace--window-start-before-scroll)))
@@ -595,17 +597,11 @@ Topspace will not be enabled for:
       (advice-add #'scroll-up :after #'topspace--after-scroll)
       (advice-add #'scroll-down :after #'topspace--after-scroll)
       (advice-add #'recenter :after #'topspace--after-recenter))
-    (setq topspace--previous-mwheel-scroll-down-function
-          mwheel-scroll-down-function)
-    (setq mwheel-scroll-down-function
-          #'topspace--mwheel-scroll-down-function)
     (dolist (window (get-buffer-window-list))
       (with-selected-window window (topspace--draw)))))
 
 (defun topspace--disable ()
   "Disable `topspace-mode' and do mode cleanup."
-  (setq mwheel-scroll-down-function
-        topspace--previous-mwheel-scroll-down-function)
   (remove-overlays 1 1 'topspace--remove-from-buffer-tag t)
   (topspace--remove-hooks))
 
