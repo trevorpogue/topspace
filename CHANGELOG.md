@@ -6,6 +6,7 @@
 
 **Fixed bugs:**
 
+- Prevent "Beginning of buffer" error message when scrolling above top [\#12](https://github.com/trevorpogue/topspace/pull/12) ([trevorpogue](https://github.com/trevorpogue))
 - Fix inability to use scrolling commands interactively [\#11](https://github.com/trevorpogue/topspace/pull/11) ([trevorpogue](https://github.com/trevorpogue))
 
 ## [0.2.0](https://github.com/trevorpogue/topspace/tree/0.2.0) (2022-04-12)
