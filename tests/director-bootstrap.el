@@ -12,7 +12,7 @@
   "Setup the environment for a simulated user session."
 
   (require 'package)
-  
+
   (setq byte-compile-warnings nil)
   (when (boundp 'comp-async-report-warnings-errors)
     (setq comp-async-report-warnings-errors nil))
@@ -30,7 +30,6 @@
 
     ;; attempt requiring director here; if error, add director to list of required
     ;; packages, and retry after initializing packages
-    
     (package-initialize)
     (when packages
       (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -39,4 +38,3 @@
           (package-install package))))
 
     (require 'director)))
-
