@@ -211,7 +211,7 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
     (topspace--draw new-topspace-height)
     (setq total-lines
           (- total-lines (- new-topspace-height old-topspace-height)))
-    (if (display-graphic-p) total-lines (round total-lines))))
+    (round total-lines)))
 
 (defun topspace--filter-args-scroll-down (&optional total-lines)
   "Run before `scroll-down' for scrolling above the top line.
