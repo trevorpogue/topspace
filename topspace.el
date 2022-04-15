@@ -223,23 +223,7 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
     (setq total-lines (or total-lines (- (topspace--window-height)
                                          next-screen-context-lines)))
     (setq topspace--total-lines-scrolling total-lines)
-    (cond
-     ((and (= (window-start) 1) (> total-lines 0))
-      ;; Prevent "Begining of buffer" error/message when scrolling above
-      ;; top line by passing 0 to `scroll-down' when relevant:
-      (let ((max-height
-             (- (topspace--window-height) (topspace--context-lines)))
-            (old-height (topspace--height)))
-        (topspace--scroll total-lines)
-        ;; But if top space is at its max height, then allow the
-        ;; "Begining of buffer" error/message to occur:
-        (if (= old-height max-height)
-            (list total-lines)
-          (list 0))))
-     (t ;; if no top space present then we don't have to worry about
-      ;; signalling the "Begining of buffer" error/message
-      ;; (so can skip the above conditions for avoiding this error)
-      (list (topspace--scroll total-lines)))))))
+    (list (topspace--scroll total-lines)))))
 
 (defun topspace--filter-args-scroll-up (&optional total-lines)
   "Run before `scroll-up' for scrolling above the top line.
