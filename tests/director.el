@@ -80,7 +80,7 @@ A step can be one of:
   using `listify-key-sequence' and can contain special
   characters, e.g. `(:type \"\\M-xsetenv\\r\")'
 - `:call': shortcut to invoke an interactive command, e.g. `(:call setenv)'
-- `:run': Lisp form; it will be evaluated
+- `:eval': Lisp form; it will be evaluated
 - `:log': Lisp form; it will be evaluated and its result will be
   written to log; e.g. `(:log (buffer-file-name (current-buffer)))'
 - `:wait': number; seconds to wait before next step; overrides
@@ -199,7 +199,7 @@ If DELAY-OVERRIDE is non-nil, the next step is delayed by that value rather than
            (director--schedule-next)
            (call-interactively command))
 
-          (`(:run ,form)
+          (`(:eval ,form)
            (eval form)
            (director--schedule-next))
 

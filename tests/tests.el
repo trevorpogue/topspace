@@ -12,15 +12,13 @@
  :before-start (lambda ()
                  (global-set-key (kbd "C-M-n") 'scroll-down-line)
                  (global-set-key (kbd "C-M-p") 'scroll-up-line)
-                 (global-set-key (kbd "C-M-e") 'end-of-buffer)
                  (switch-to-buffer (find-file-noselect "../topspace.el" t))
-                 (global-topspace-mode)
-                 )
+                 (global-topspace-mode))
  :steps '(
           ;; Test scrolling using key commands
           (:type "\M-v")     ;; page down
           (:type "\C-\M-n")  ;; scroll down line
-          (:assert (setq topspace--tests-prev-height (topspace--height)))
+          (:eval (setq topspace--tests-prev-height (topspace--height)))
           (:type "\C-n")     ;; next-line
           (:assert (= (topspace--height) (1- topspace--tests-prev-height)))
           (:type "\C-u2\C-n");; next-line x2
@@ -38,18 +36,18 @@
 
           ;; Test mouse scrolling
           (:type "\M-v")     ;; page down
-          (:run (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
+          (:eval (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
           (:assert (setq topspace--tests-prev-height (topspace--height)))
           (:type "\C-n")     ;; next-line
           (:assert (= (topspace--height) (1- topspace--tests-prev-height)))
           (:type "\C-u2\C-n");; next-line x2
           (:assert (= (topspace--height) (- topspace--tests-prev-height 3)))
-          (:run (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
-          (:run (mwheel-scroll mouse-wheel-up-event))   ;; scroll up line
-          (:run (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
+          (:eval (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
+          (:eval (mwheel-scroll mouse-wheel-up-event))   ;; scroll up line
+          (:eval (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
           (:assert (= (topspace--height) (- topspace--tests-prev-height 2)))
-          (:run (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
-          (:run (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
+          (:eval (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
+          (:eval (mwheel-scroll mouse-wheel-down-event)) ;; scroll down line
           (:assert (= (topspace--height) topspace--tests-prev-height))
           )
  :typing-style 'human

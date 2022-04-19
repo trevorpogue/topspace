@@ -1,2 +1,3 @@
 *.~undo-tree~
 .projectile
+*.elc
