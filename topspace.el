@@ -555,6 +555,14 @@ ARG defaults to 1."
 ;;; User functions
 
 ;;;###autoload
+(defun topspace-height ()
+  "Return the top space height in the selected window in number of lines.
+The top space is the empty region in the buffer above the top text line.
+The return value is of type float, and is equivalent to
+the top space pixel height / `default-line-height'."
+  (topspace--height))
+
+;;;###autoload
 (defun topspace-recenter-buffer ()
   "Add enough top space in the selected window to center small buffers.
 Top space will not be added if the number of text lines in the buffer is larger
