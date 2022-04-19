@@ -1,8 +1,8 @@
 # Changelog
 
-## [v0.2.1](https://github.com/trevorpogue/topspace/tree/v0.2.1) (2022-04-19)
+## [Unreleased](https://github.com/trevorpogue/topspace/tree/HEAD)
 
-[Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.2.1...v0.2.1)
+[Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.2.1...HEAD)
 
 **Implemented enhancements:**
 
