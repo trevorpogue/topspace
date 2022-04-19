@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Add `topspace-height` function for use by external packages [\#15](https://github.com/trevorpogue/topspace/pull/15) ([trevorpogue](https://github.com/trevorpogue))
 - Add support for `smooth-scrolling` package [\#14](https://github.com/trevorpogue/topspace/pull/14) ([trevorpogue](https://github.com/trevorpogue))
 
 ## [v0.2.1](https://github.com/trevorpogue/topspace/tree/v0.2.1) (2022-04-15)
