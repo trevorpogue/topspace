@@ -277,6 +277,16 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
                                       (window-start)
                                       (point))))))))
 
+(defun topspace--smooth-scroll-lines-above-point (&rest r)
+  "Add support for `smooth-scroll-mode', ignore R."
+  ;; remove flycheck warnings by using R and checking smooth-scroll functions
+  r
+  (when (and (fboundp 'smooth-scroll-count-lines)
+             (fboundp 'smooth-scroll-line-beginning-position))
+    (+ (topspace--height)
+       (smooth-scroll-count-lines
+        (window-start) (smooth-scroll-line-beginning-position)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Top space line height calculation
 
@@ -580,7 +590,10 @@ Topspace will not be enabled for:
                   #'topspace--filter-args-scroll-down)
       (advice-add #'scroll-up :after #'topspace--after-scroll)
       (advice-add #'scroll-down :after #'topspace--after-scroll)
-      (advice-add #'recenter :after #'topspace--after-recenter))
+      (advice-add #'recenter :after #'topspace--after-recenter)
+      (when (fboundp 'smooth-scroll-lines-above-point)
+        (advice-add #'smooth-scroll-lines-above-point
+                    :override #'topspace--smooth-scroll-lines-above-point)))
     (dolist (window (get-buffer-window-list))
       (with-selected-window window (topspace--draw)))))
 
