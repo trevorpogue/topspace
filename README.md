@@ -42,17 +42,30 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 ```
 # Usage
 ### Just enable and go
-No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. 
+No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines.
 
-# Extra commands
+# Extra functions
 
-### `topspace-recenter-buffer`
-* Add enough top space in the selected window to center small buffers.
+```elisp
+;;;###autoload
+(defun topspace-height ()
+  "Return the top space height in the selected window in number of lines.
+The top space is the empty region in the buffer above the top text line.
+The return value is of type float, and is equivalent to
+the top space pixel height / `default-line-height'."
+...
+
+;;;###autoload
+(defun topspace-recenter-buffer ()
+  "Add enough top space in the selected window to center small buffers.
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
-Customize `topspace-center-position` to adjust the centering position.
-Customize `topspace-autocenter-buffers` to run this command automatically
-after first opening buffers and after window sizes change.
+Customize `topspace-center-position' to adjust the centering position.
+Customize `topspace-autocenter-buffers' to run this command automatically
+after first opening buffers and after window sizes change."
+  (interactive)
+...
+```
 
 # Customization
 ```elisp
