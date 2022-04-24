@@ -9,7 +9,7 @@
   <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" height="20"/></a>
 </p>
 
-<p align="center"><img src="https://user-images.githubusercontent.com/12535207/162343638-c10892d9-833a-48a6-a3cc-2186d4e30866.gif"/></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/12535207/164986647-cdb35afa-de45-4e6f-ac16-fad765f9969e.gif"/></p>
 
 TopSpace is an Emacs minor mode that allows you to scroll down and recenter top lines by automatically drawing an upper margin/padding above the top line
 as you scroll down or recenter top text.
