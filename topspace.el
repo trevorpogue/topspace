@@ -65,6 +65,10 @@
 (defvar-local topspace--heights '()
   "Stores top space heights of each window that buffer has been selected in.")
 
+(defvar-local topspace--scrolled '()
+  "Stores if user has scrolled buffer in selected window before.
+Only recorded if topspace is active in the buffer at the time of scrolling.")
+
 (defvar-local topspace--autocenter-heights '()
   "Stores the top space heights needed to center small buffers.
 A value is stored for each window that the buffer has been selected in.")
@@ -107,13 +111,17 @@ This flag signals to wait until then to display top space.")
   :link '(url-link "https://github.com/trevorpogue/topspace")
   :link '(emacs-commentary-link :tag "Commentary" "topspace"))
 
-(defcustom topspace-autocenter-buffers t
+(defcustom topspace-autocenter-buffers #'topspace-default-autocenter-buffers
   "Center small buffers with top space when first opened or window sizes change.
 This is done by automatically calling `topspace-recenter-buffer'
 and the positioning can be customized with `topspace-center-position'.
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
 Customize `topspace-center-position' to adjust the centering position.
+
+With the default value for `topspace-autocenter-buffers',
+buffers will not be centered if in a child frame or if the user
+has already scrolled or used `recenter' with buffer in the selected window.
 
 If non-nil, then always autocenter.  If nil, never autocenter.
 If set to a predicate function (function that returns a boolean value),
@@ -170,18 +178,6 @@ property added.  If you do this you may be interested in also changing the
 string's face like so: (propertize indicator-string 'face 'fringe)."
   :type '(choice 'string (function :tag "String function")))
 
-(defun topspace-default-empty-line-indicator ()
-  "Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
-This is done by adding a 'display property to the returned string.
-The bitmap used is the one that the `empty-line' logical fringe indicator
-maps to in `fringe-indicator-alist'."
-  (if indicate-empty-lines
-      (let ((bitmap (catch 'tag (dolist (x fringe-indicator-alist)
-                                  (when (eq (car x) 'empty-line)
-                                    (throw 'tag (cdr x)))))))
-        (propertize " " 'display (list `left-fringe bitmap `fringe)))
-    ""))
-
 (defcustom topspace-mode-line " T"
   "Mode line lighter for Topspace.
 The value of this variable is a mode line template as in
@@ -203,6 +199,7 @@ preferred bindings.")
 (defun topspace--scroll (total-lines)
   "Run before `scroll-up'/`scroll-down' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-down'."
+  (setf (alist-get (selected-window) topspace--scrolled) t)
   (let ((old-topspace-height (topspace--height))
         (new-topspace-height))
     (setq new-topspace-height (topspace--correct-height
@@ -264,7 +261,9 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
   redisplay  ; remove flycheck warning for unused argument (see above)
   (cond
    ((not (topspace--enabled)))
-   ((when (= (window-start) 1)
+   (t
+    (setf (alist-get (selected-window) topspace--scrolled) t)
+    (when (= (window-start) 1)
       (unless line-offset
         (setq line-offset (/ (topspace--window-height) 2)))
       (when (< line-offset 0)
@@ -303,9 +302,10 @@ If no previous value exists, return the appropriate value to
  center the buffer when `topspace-autocenter-buffers' returns non-nil, else 0."
   (let ((height) (window (selected-window)))
     (setq height (alist-get window topspace--heights))
-    (unless (or height (topspace--recenter-buffers-p)) (setq height 0))
+    (unless (or height (topspace--eval-choice topspace-autocenter-buffers))
+      (setq height 0))
     (when height (topspace--set-height (topspace--correct-height height)))
-    (when (and (not height) (topspace--recenter-buffers-p))
+    (when (and (not height) (topspace--eval-choice topspace-autocenter-buffers))
       (setq height (alist-get (selected-window) topspace--autocenter-heights))
       (unless height (setq height (topspace--height-to-make-buffer-centered)))
       (setq height (topspace--correct-height height))
@@ -362,16 +362,6 @@ Return the current line plus the top space height TOPSPACE-HEIGHT."
 The return value is only valid for windows starting at the top of the frame,
 which must be accounted for in the calling functions."
   (* (frame-text-lines) topspace-center-position))
-
-(defun topspace--recenter-buffers-p ()
-  "Return non-nil if buffer is allowed to be auto-centered.
-Buffers will not be auto-centered if `topspace-autocenter-buffers' returns nil
-or if the selected window is in a child-frame."
-  (and (topspace--eval-choice topspace-autocenter-buffers)
-       (or ;; frame-parent is only provided in Emacs 26.1, so first check
-        ;; if fhat function is fboundp.
-        (not (fboundp 'frame-parent))
-        (not (frame-parent)))))
 
 (defun topspace--window-height ()
   "Return the number of screen lines in the selected window rounded up."
@@ -506,7 +496,7 @@ ARG defaults to 1."
   (let ((current-height (topspace--window-height)) (window (selected-window)))
     (let ((previous-height (alist-get window topspace--previous-window-heights
                                       0)))
-      (if (and (topspace--recenter-buffers-p)
+      (if (and (topspace--eval-choice topspace-autocenter-buffers)
                (not (= previous-height current-height)))
           (topspace-recenter-buffer)
         (topspace--draw))
@@ -575,6 +565,28 @@ after first opening buffers and after window sizes change."
     (setf (alist-get (selected-window) topspace--autocenter-heights)
           center-height)
     (topspace--draw center-height)))
+
+(defun topspace-default-autocenter-buffers ()
+  "Return non-nil if buffer is allowed to be auto-centered.
+Return nil if the selected window is in a child-frame or user has scrolled
+buffer in selected window."
+  (and (not (alist-get (selected-window) topspace--scrolled))
+       (or ;; frame-parent is only provided in Emacs 26.1, so first check
+        ;; if fhat function is fboundp.
+        (not (fboundp 'frame-parent))
+        (not (frame-parent)))))
+
+(defun topspace-default-empty-line-indicator ()
+  "Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
+This is done by adding a 'display property to the returned string.
+The bitmap used is the one that the `empty-line' logical fringe indicator
+maps to in `fringe-indicator-alist'."
+  (if indicate-empty-lines
+      (let ((bitmap (catch 'tag (dolist (x fringe-indicator-alist)
+                                  (when (eq (car x) 'empty-line)
+                                    (throw 'tag (cdr x)))))))
+        (propertize " " 'display (list `left-fringe bitmap `fringe)))
+    ""))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Mode definition and setup
