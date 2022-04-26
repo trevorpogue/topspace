@@ -9,6 +9,10 @@
 - Add `topspace-height` function for use by external packages [\#15](https://github.com/trevorpogue/topspace/pull/15) ([trevorpogue](https://github.com/trevorpogue))
 - Add support for `smooth-scrolling` package [\#14](https://github.com/trevorpogue/topspace/pull/14) ([trevorpogue](https://github.com/trevorpogue))
 
+**Merged pull requests:**
+
+- Fix unexpected top space height change when echo area height changes [\#18](https://github.com/trevorpogue/topspace/pull/18) ([trevorpogue](https://github.com/trevorpogue))
+
 ## [v0.2.1](https://github.com/trevorpogue/topspace/tree/v0.2.1) (2022-04-15)
 
 [Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.2.0...v0.2.1)
