@@ -4,9 +4,10 @@
 <!-- cursor -->
 
 <p align="center">
+   <a href="https://github.com/trevorpogue/topspace/actions/workflows/test.yml/"><img src="https://github.com/trevorpogue/topspace/actions/workflows/test.yml/badge.svg" height="20"/></a>
+  <a href='https://coveralls.io/github/trevorpogue/topspace'><img src='https://coveralls.io/repos/github/trevorpogue/topspace/badge.svg&kill_cache=1' alt='Coverage Status' /></a>
   <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
   <a href="http://stable.melpa.org/#/topspace"><img src="http://stable.melpa.org/packages/topspace-badge.svg" height="20"/></a>
-  <a href="https://www.gnu.org/licenses/gpl-3.0"><img src="https://img.shields.io/badge/License-GPLv3-blue.svg" height="20"/></a>
 </p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/164986647-cdb35afa-de45-4e6f-ac16-fad765f9969e.gif"/></p>

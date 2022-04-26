@@ -1,3 +1,7 @@
 *.~undo-tree~
 .projectile
 *.elc
+.cask
+coverage/
+cask-run
+test/director/
