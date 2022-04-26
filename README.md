@@ -44,38 +44,19 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 ### Just enable and go
 No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines.
 
-# Extra functions
-
-```elisp
-;;;###autoload
-(defun topspace-height ()
-  "Return the top space height in the selected window in number of lines.
-The top space is the empty region in the buffer above the top text line.
-The return value is of type float, and is equivalent to
-the top space pixel height / `default-line-height'."
-...
-
-;;;###autoload
-(defun topspace-recenter-buffer ()
-  "Add enough top space in the selected window to center small buffers.
-Top space will not be added if the number of text lines in the buffer is larger
-than or close to the selected window's height.
-Customize `topspace-center-position' to adjust the centering position.
-Customize `topspace-autocenter-buffers' to run this command automatically
-after first opening buffers and after window sizes change."
-  (interactive)
-...
-```
-
 # Customization
 ```elisp
-(defcustom topspace-autocenter-buffers t
+(defcustom topspace-autocenter-buffers #'topspace-default-autocenter-buffers
   "Center small buffers with top space when first opened or window sizes change.
 This is done by automatically calling `topspace-recenter-buffer'
 and the positioning can be customized with `topspace-center-position'.
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height.
 Customize `topspace-center-position' to adjust the centering position.
+
+With the default value for `topspace-autocenter-buffers',
+buffers will not be centered if in a child frame or if the user
+has already scrolled or used `recenter' with buffer in the selected window.
 
 If non-nil, then always autocenter.  If nil, never autocenter.
 If set to a predicate function (function that returns a boolean value),
@@ -89,7 +70,7 @@ then do auto-centering only when that function returns a non-nil value."
   "Target position when centering buffers as a ratio of frame height.
 A value from 0 to 1 where lower values center buffers higher up in the screen.
 Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
-if `topspace-autocenter-buffers' is non-nil."
+if `topspace-autocenter-buffers' returns non-nil."
   :group 'topspace
   :type 'float)
 
@@ -132,18 +113,6 @@ property added.  If you do this you may be interested in also changing the
 string's face like so: (propertize indicator-string 'face 'fringe)."
   :type '(choice 'string (function :tag "String function")))
 
-(defun topspace-default-empty-line-indicator ()
-  "Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
-This is done by adding a 'display property to the returned string.
-The bitmap used is the one that the `empty-line' logical fringe indicator
-maps to in `fringe-indicator-alist'."
-  (if indicate-empty-lines
-      (let ((bitmap (catch 'tag (dolist (x fringe-indicator-alist)
-                                  (when (eq (car x) 'empty-line)
-                                    (throw 'tag (cdr x)))))))
-        (propertize " " 'display (list `left-fringe bitmap `fringe)))
-    ""))
-
 (defcustom topspace-mode-line " T"
   "Mode line lighter for Topspace.
 The value of this variable is a mode line template as in
@@ -157,7 +126,42 @@ Set this variable to nil to disable the mode line completely."
 (defvar topspace-keymap (make-sparse-keymap)
   "Keymap for Topspace commands.
 By default this is left empty for users to set with their own
-preferred bindings.")
+```
+
+# Extra functions
+
+```elisp
+;;;###autoload
+(defun topspace-height ()
+  "Return the top space height in the selected window in number of lines.
+The top space is the empty region in the buffer above the top text line.
+The return value is of type float, and is equivalent to
+the top space pixel height / `default-line-height'."
+...
+
+;;;###autoload
+(defun topspace-recenter-buffer ()
+  "Add enough top space in the selected window to center small buffers.
+Top space will not be added if the number of text lines in the buffer is larger
+than or close to the selected window's height.
+Customize `topspace-center-position' to adjust the centering position.
+Customize `topspace-autocenter-buffers' to run this command automatically
+after first opening buffers and after window sizes change."
+  (interactive)
+...
+
+(defun topspace-default-autocenter-buffers ()
+  "Return non-nil if buffer is allowed to be auto-centered.
+Return nil if the selected window is in a child-frame or user has scrolled
+buffer in selected window."
+...
+
+(defun topspace-default-empty-line-indicator ()
+  "Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
+This is done by adding a 'display property to the returned string.
+The bitmap used is the one that the `empty-line' logical fringe indicator
+maps to in `fringe-indicator-alist'."
+...
 ```
 
 # How it works
