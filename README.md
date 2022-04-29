@@ -3,7 +3,6 @@
 
 <!-- cursor -->
 
-
 <p align="center">
    <a href="https://github.com/trevorpogue/topspace/actions/workflows/test.yml/"><img src="https://github.com/trevorpogue/topspace/actions/workflows/test.yml/badge.svg" height="20"/></a>
   <a href='https://coveralls.io/github/trevorpogue/topspace?branch=main'><img src='https://coveralls.io/repos/github/trevorpogue/topspace/badge.svg?branch=main&kill_cache=1' alt='Coverage Status' /></a>
@@ -12,6 +11,13 @@
 </p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/164986647-cdb35afa-de45-4e6f-ac16-fad765f9969e.gif"/></p>
+
+<p align="center">
+[ <a href="https://github.com/trevorpogue/topspace#installation"> Installation </a> |
+<a href="https://github.com/trevorpogue/topspace#usage"> Usage</a> |
+<a href="https://github.com/trevorpogue/topspace#customization"> Customization</a> |
+<a href="https://github.com/trevorpogue/topspace#extra-functions"> Extra functions</a> |
+   <a href="https://github.com/trevorpogue/topspace#how-it-works"> How it works </a> ]
 
 TopSpace is an Emacs minor mode that allows you to scroll down and recenter top lines by automatically drawing an upper margin/padding above the top line
 as you scroll down or recenter top text.
