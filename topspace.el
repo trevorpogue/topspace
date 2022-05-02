@@ -60,6 +60,9 @@
 ;;; Code:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Debugging
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Private variables
 
 (defvar-local topspace--heights '()
@@ -220,7 +223,14 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
     (setq total-lines (or total-lines (- (topspace--window-height)
                                          next-screen-context-lines)))
     (setq topspace--total-lines-scrolling total-lines)
-    (list (topspace--scroll total-lines)))))
+    (setq total-lines (topspace--scroll total-lines))
+    (let ((window-start-visual-line))
+      (when (< (line-number-at-pos (window-start)) (topspace--window-height))
+        ;; only count lines here otherwise it will take too much compute time
+        (setq window-start-visual-line (topspace--count-lines 1 (window-start)))
+        (when (> total-lines window-start-visual-line)
+          (setq total-lines window-start-visual-line)))
+      (list (round total-lines))))))
 
 (defun topspace--filter-args-scroll-up (&optional total-lines)
   "Run before `scroll-up' for scrolling above the top line.
@@ -400,12 +410,10 @@ If that doesn't work it uses `topspace--count-lines-slower'."
        ((and end-y start-y)
         ;; first try counting lines by getting the pixel difference
         ;; between end and start and dividing by `default-line-height'
-        (+
-         (/ (- (cdr end-y) (cdr start-y))
-            (float (default-line-height)))
-         (if (> old-end end) (topspace--count-lines-slower end old-end) 0)
-         (if (< old-start start)
-             (topspace--count-lines-slower old-start start) 0)))
+        (+ (/ (- (cdr end-y) (cdr start-y)) (float (default-line-height)))
+           (if (> old-end end) (topspace--count-lines-slower end old-end) 0)
+           (if (< old-start start)
+               (topspace--count-lines-slower old-start start) 0)))
        (t ;; if the pixel method above doesn't work do this slower method
         ;; (it won't work if either START or END are not visible in window)
         (topspace--count-lines-slower start old-end))))))
@@ -479,12 +487,7 @@ lines: if either `auto-window-vscroll' or TRY-VSCROLL is nil, this
 function will not vscroll.
 ARG defaults to 1."
   (or arg (setq arg 1))
-  (if (called-interactively-p 'interactive)
-      (condition-case err
-          (line-move (- arg) nil nil try-vscroll)
-        ((beginning-of-buffer end-of-buffer)
-         (signal (car err) (cdr err))))
-    (line-move (- arg) nil nil try-vscroll))
+  (line-move (- arg) nil nil try-vscroll)
   nil)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

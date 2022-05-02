@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         emacs_version:
-#        - 25.1  remove untill coveralls reporting error is debugged
+        - 25.1
         - 26.1
         - 27.1
         - 28.1

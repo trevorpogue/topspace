@@ -11,6 +11,7 @@
   (undercover "*.el"
               ;; (:report-file "coverage/.resultset.json")
               ;; (:report-format 'simplecov)
+              ;; (:report-format 'text)
               ))
 
 (require 'smooth-scrolling)
