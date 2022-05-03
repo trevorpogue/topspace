@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+<!-- Thank you for helping improve topspace! -->
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
