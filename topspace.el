@@ -578,9 +578,10 @@ This is done by adding a 'display property to the returned string.
 The bitmap used is the one that the `empty-line' logical fringe indicator
 maps to in `fringe-indicator-alist'."
   (if indicate-empty-lines
-      (let ((bitmap (catch 'tag (dolist (x fringe-indicator-alist)
-                                  (when (eq (car x) 'empty-line)
-                                    (throw 'tag (cdr x)))))))
+      (let ((bitmap
+             (catch 'tag
+               (dolist (x fringe-indicator-alist)
+                 (when (eq (car x) 'empty-line) (throw 'tag (cdr x)))))))
         (propertize " " 'display (list `left-fringe bitmap `fringe)))
     ""))
 
