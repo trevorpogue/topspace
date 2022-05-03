@@ -373,10 +373,9 @@ which must be accounted for in the calling functions."
         (setq result (+ result (* (vertical-motion 1) (line-pixel-height))))))
     result))
 
-(defun topspace--count-lines-slower (start end)
+(defun topspace--cnt-ln-slow (start end)
   "Return screen lines between points START and END.
-Like `count-screen-lines' except `count-screen-lines' will
-return unexpected value when END is in column 0. This fixes that issue."
+Like `topspace--count-lines' but is a slower backup alternative."
   (/ (topspace--count-pixel-height start end) (float (default-line-height))))
 
 (defun topspace--count-lines (start end)
@@ -385,7 +384,7 @@ Like `count-screen-lines' except `count-screen-lines' will
 return unexpected value when END is in column 0. This fixes that issue.
 This function also tries to first count the lines using a potentially faster
 technique involving `window-absolute-pixel-position'.
-If that doesn't work it uses `topspace--count-lines-slower'."
+If that doesn't work it uses `topspace--cnt-ln-slow'."
   (let ((old-end end) (old-start start))
     (setq end (min end (- (window-end) 1)))
     (setq start (max start (window-start)))
@@ -396,12 +395,11 @@ If that doesn't work it uses `topspace--count-lines-slower'."
         ;; first try counting lines by getting the pixel difference
         ;; between end and start and dividing by `default-line-height'
         (+ (/ (- (cdr end-y) (cdr start-y)) (float (default-line-height)))
-           (if (> old-end end) (topspace--count-lines-slower end old-end) 0)
-           (if (< old-start start)
-               (topspace--count-lines-slower old-start start) 0)))
+           (if (> old-end end) (topspace--cnt-ln-slow end old-end) 0)
+           (if (< old-start start) (topspace--cnt-ln-slow old-start start) 0)))
        (t ;; if the pixel method above doesn't work do this slower method
         ;; (it won't work if either START or END are not visible in window)
-        (topspace--count-lines-slower start old-end))))))
+        (topspace--cnt-ln-slow start old-end))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Overlay drawing
