@@ -27,7 +27,7 @@
 ;; by automatically drawing an upper margin/padding above the top line
 ;; as you scroll down or recenter top text.
 
-;; TopSpace is:
+;; Features:
 
 ;; - Easier on the eyes: Recenter or scroll down top text to a more
 ;;   comfortable eye level for reading, especially when in full-screen
@@ -102,6 +102,12 @@ space should be reduced in size or not")
 This flag signals to wait until then to display top space.")
 
 (defvar topspace--advice-added nil "Keep track if `advice-add` done already.")
+
+(defvar topspace--scroll-down-scale-factor 1
+  "For eliminating an error when testing in non-interactive batch mode.
+An error occurs in this mode any time `scroll-down' is passed a
+non-zero value, which halts tests and makes testing many topspace features
+impossible.  So this variable is set to zero when testing in this mode.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
@@ -223,16 +229,8 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
     (setq total-lines (or total-lines (- (topspace--window-height)
                                          next-screen-context-lines)))
     (setq topspace--total-lines-scrolling total-lines)
-    (setq total-lines (topspace--scroll total-lines))
-    (let ((window-start-visual-line))
-      (when (and
-             (> total-lines 1)
-             (< (line-number-at-pos (window-start)) (topspace--window-height)))
-        ;; only count lines here otherwise it will take too much compute time
-        (setq window-start-visual-line (topspace--count-lines 1 (window-start)))
-        (when (> total-lines window-start-visual-line)
-          (setq total-lines window-start-visual-line)))
-      (list (round total-lines))))))
+    (list (* topspace--scroll-down-scale-factor
+             (topspace--scroll total-lines))))))
 
 (defun topspace--filter-args-scroll-up (&optional total-lines)
   "Run before `scroll-up' for scrolling above the top line.
@@ -364,16 +362,18 @@ which must be accounted for in the calling functions."
 
 (defun topspace--count-pixel-height (start end)
   "Return total pixels between points START and END as if they're both visible."
-  (setq end (min end (point-max)))
-  (setq start (max start (point-min)))
   (let ((result 0))
     (save-excursion
+      (goto-char end)
+      (beginning-of-visual-line)
+      (setq end (point))
       (goto-char start)
+      (beginning-of-visual-line)
       (while (< (point) end)
         (setq result (+ result (* (vertical-motion 1) (line-pixel-height))))))
     result))
 
-(defun topspace--count-slow (start end)
+(defun topspace--count-lines-slow (start end)
   "Return screen lines between points START and END.
 Like `topspace--count-lines' but is a slower backup alternative."
   (/ (topspace--count-pixel-height start end) (float (default-line-height))))
@@ -384,22 +384,27 @@ Like `count-screen-lines' except `count-screen-lines' will
 return unexpected value when END is in column 0. This fixes that issue.
 This function also tries to first count the lines using a potentially faster
 technique involving `window-absolute-pixel-position'.
-If that doesn't work it uses `topspace--count-slow'."
-  (let ((old-end end) (old-start start))
+If that doesn't work it uses `topspace--count-lines-slow'."
+  (setq end (min end (point-max)))
+  (setq start (max start (point-min)))
+  (let ((old-end) (old-start) (swap)
+        (line-height (float (default-line-height))))
+    (when (> start end) (setq swap end) (setq end start) (setq start swap))
+    (setq old-end end) (setq old-start start)
     (setq end (min end (- (window-end) 1)))
     (setq start (max start (window-start)))
     (let ((end-y (window-absolute-pixel-position end))
           (start-y (window-absolute-pixel-position start)))
-      (cond
-       ((and end-y start-y)
-        ;; first try counting lines by getting the pixel difference
-        ;; between end and start and dividing by `default-line-height'
-        (+ (/ (- (cdr end-y) (cdr start-y)) (float (default-line-height)))
-           (if (> old-end end) (topspace--count-slow end old-end) 0)
-           (if (< old-start start) (topspace--count-slow old-start start) 0)))
-       (t ;; if the pixel method above doesn't work do this slower method
-        ;; (it won't work if either START or END are not visible in window)
-        (topspace--count-slow start old-end))))))
+      (+
+       (if (> old-end end) (topspace--count-lines-slow end old-end) 0)
+       (if (< old-start start) (topspace--count-lines-slow old-start start) 0)
+       (condition-case nil
+           ;; first try counting lines by getting the pixel difference
+           ;; between end and start and dividing by `default-line-height'
+           (/ (- (cdr end-y) (cdr start-y)) line-height)
+         ;; if the pixel method above doesn't work do this slower method
+         ;; (it won't work if either START or END are not visible in window)
+         (error (topspace--count-lines-slow start end)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Overlay drawing

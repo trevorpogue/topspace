@@ -5,6 +5,7 @@
 Eldev
 .eldev
 topspace.log
+\#*\#
 coverage/
 cask-run
 test/director/

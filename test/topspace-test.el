@@ -8,6 +8,7 @@
 
 (setq topspace--log-target '(file . "~/topspace/topspace.log"))
 (setq topspace--start-time (float-time))
+(setq topspace--scroll-down-scale-factor 0)
 
 (defun topspace--log (message)
   "Log MESSAGE."
@@ -48,8 +49,7 @@
  (before-all
   (topspace--cmds (set-frame-size (selected-frame) 90 24))
   (switch-to-buffer (find-file-noselect "./topspace.el" t))
-  (global-topspace-mode)
-  )
+  (global-topspace-mode))
 
  (before-each (switch-to-buffer "topspace.el"))
 
@@ -159,13 +159,13 @@ in case topspace-autocenter-buffers changed return value"
       (previous-line)
       (previous-line)
       (expect (round (topspace-height)) :to-equal 2)
-      (setq smooth-scrolling-mode nil)
-      ))
+      (setq smooth-scrolling-mode nil)))
 
  (describe
   "topspace-default-empty-line-indicator"
   (it "can return a string with an indicator in left-fringe"
       (setq indicate-empty-lines t)
+      (add-to-list 'fringe-indicator-alist '(up . up-arrow))
       (let ((bitmap (catch 'tag (dolist (x fringe-indicator-alist)
                                   (when (eq (car x) 'empty-line)
                                     (throw 'tag (cdr x)))))))
@@ -187,11 +187,17 @@ in case topspace-autocenter-buffers changed return value"
   ;;               :to-equal
   ;;               (line-number-at-pos (point-max)))))
 
+  (it "can count lines if start is larger than end"
+      (set-window-start (selected-window) 100)
+      (expect (round (topspace--count-lines (point-max) (point-min)))
+              :to-equal
+              (line-number-at-pos (point-max)))
+      (set-window-start (selected-window) 1))
+
   (it "can count lines if window-absolute-pixel-position returns nil"
       (expect (round (topspace--count-lines (point-min) (point-max)))
               :to-equal
-              (line-number-at-pos (point-max))
-              )))
+              (line-number-at-pos (point-max)))))
 
  (describe
   "topspace--correct-height"

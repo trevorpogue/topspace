@@ -5,9 +5,11 @@
 
 <p align="center">
    <a href="https://github.com/trevorpogue/topspace/actions/workflows/test.yml/"><img src="https://github.com/trevorpogue/topspace/actions/workflows/test.yml/badge.svg" height="20"/></a>
-  <a href='https://coveralls.io/github/trevorpogue/topspace?branch=main'><img src='https://coveralls.io/repos/github/trevorpogue/topspace/badge.svg?branch=main&&' alt='Coverage Status' /></a>
+  <a href='https://coveralls.io/github/trevorpogue/topspace?branch=main'><img src='https://coveralls.io/repos/github/trevorpogue/topspace/badge.svg?branch=main&0' alt='Coverage Status' /></a>
+     <a href="https://github.com/trevorpogue/topspace/blob/main/.github/workflows/test.yml"><img src="https://img.shields.io/badge/Supports-Emacs_25.1--28.1-blueviolet.svg?style=flat-square&logo=GNU%20Emacs&logoColor=whit" height="20"/></a>
   <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
   <a href="http://stable.melpa.org/#/topspace"><img src="http://stable.melpa.org/packages/topspace-badge.svg" height="20"/></a>
+
 </p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12535207/164986647-cdb35afa-de45-4e6f-ac16-fad765f9969e.gif"/></p>
@@ -22,7 +24,7 @@
 TopSpace is an Emacs minor mode that allows you to scroll down and recenter top lines by automatically drawing an upper margin/padding above the top line
 as you scroll down or recenter top text.
 
-TopSpace is:
+### Features
 
 * **Easier on the eyes**: Recenter or scroll down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
 * **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.

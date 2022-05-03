@@ -1,6 +1,8 @@
 name: Test
 
 on: [ push, pull_request ]
+  paths:
+    - '*.el'
 jobs:
   test:
     runs-on: ubuntu-latest
