@@ -5,7 +5,7 @@
 
 <p align="center">
    <a href="https://github.com/trevorpogue/topspace/actions/workflows/test.yml/"><img src="https://github.com/trevorpogue/topspace/actions/workflows/test.yml/badge.svg" height="20"/></a>
-  <a href='https://coveralls.io/github/trevorpogue/topspace?branch=main'><img src='https://coveralls.io/repos/github/trevorpogue/topspace/badge.svg?branch=main&0' alt='Coverage Status' /></a>
+  <a href='https://coveralls.io/github/trevorpogue/topspace?branch=main'><img src='https://coveralls.io/repos/github/trevorpogue/topspace/badge.svg?branch=main&1' alt='Coverage Status' /></a>
      <a href="https://github.com/trevorpogue/topspace/blob/main/.github/workflows/test.yml"><img src="https://img.shields.io/badge/Supports-Emacs_25.1--28.1-blueviolet.svg?style=flat-square&logo=GNU%20Emacs&logoColor=whit" height="20"/></a>
   <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
   <a href="http://stable.melpa.org/#/topspace"><img src="http://stable.melpa.org/packages/topspace-badge.svg" height="20"/></a>
