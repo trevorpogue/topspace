@@ -336,7 +336,7 @@ Return the current line plus the top space height TOPSPACE-HEIGHT."
   (+ (topspace--count-lines (window-start) (point))
      (or topspace-height (topspace-height))))
 
-(defun topspace-height-to-make-buffer-centered ()
+(defun topspace--height-to-make-buffer-centered ()
   "Return the necessary top space height to center selected window's buffer."
   (let ((buffer-height (topspace--count-lines (window-start) (window-end)))
         (result)
@@ -548,7 +548,7 @@ the top space pixel height / `default-line-height'."
     (when height (topspace--set-height (topspace--correct-height height)))
     (when (and (not height) (topspace--eval-choice topspace-autocenter-buffers))
       (setq height (alist-get (selected-window) topspace--autocenter-heights))
-      (unless height (setq height (topspace-height-to-make-buffer-centered)))
+      (unless height (setq height (topspace--height-to-make-buffer-centered)))
       (setq height (topspace--correct-height height))
       (setf (alist-get window topspace--heights) height))
     height))
@@ -562,7 +562,7 @@ Customize `topspace-center-position' to adjust the centering position.
 Customize `topspace-autocenter-buffers' to run this command automatically
 after first opening buffers and after window sizes change."
   (interactive)
-  (let ((center-height (topspace-height-to-make-buffer-centered)))
+  (let ((center-height (topspace--height-to-make-buffer-centered)))
     (setf (alist-get (selected-window) topspace--autocenter-heights)
           center-height)
     (topspace--draw center-height)))
