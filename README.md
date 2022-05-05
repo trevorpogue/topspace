@@ -56,17 +56,35 @@ No new keybindings are required, keep using all your previous scrolling & recent
 
 # Customization
 ```elisp
+(defcustom topspace-active #'topspace-default-active
+  "Determine when `topspace-mode' mode is active / has any effect on buffer.
+This is useful in particular when `global-topspace-mode' is enabled but you want
+`topspace-mode' to be inactive in certain buffers or in any specific
+circumstance.  When inactive, `topspace-mode' will still technically be on,
+but will be effectively off and have no effect on the buffer.
+Note that if `topspace-active' returns non-nil but `topspace-mode' is off,
+`topspace-mode' will still be disabled.
+
+With the default value, topspace will only be inactive in child frames.
+
+If non-nil, then always be active.  If nil, never be active.
+If set to a predicate function (function that returns a boolean value),
+then be active only when that function returns a non-nil value."
+  :type '(choice (const :tag "always" t)
+                 (const :tag "never" nil)
+                 (function :tag "predicate function")))
+
 (defcustom topspace-autocenter-buffers #'topspace-default-autocenter-buffers
   "Center small buffers with top space when first opened or window sizes change.
 This is done by automatically calling `topspace-recenter-buffer'
 and the positioning can be customized with `topspace-center-position'.
 Top space will not be added if the number of text lines in the buffer is larger
-than or close to the selected window's height.
-Customize `topspace-center-position' to adjust the centering position.
+than or close to the selected window's height, or if `window-start' is greater
+than 1.  Customize `topspace-center-position' to adjust the centering position.
 
-With the default value for `topspace-autocenter-buffers',
-buffers will not be centered if in a child frame or if the user
-has already scrolled or used `recenter' with buffer in the selected window.
+With the default value, buffers will not be centered if in a child frame
+or if the user has already scrolled or used `recenter' with buffer in the
+selected window.
 
 If non-nil, then always autocenter.  If nil, never autocenter.
 If set to a predicate function (function that returns a boolean value),
@@ -77,28 +95,27 @@ then do auto-centering only when that function returns a non-nil value."
                  (function :tag "predicate function")))
 
 (defcustom topspace-center-position 0.4
-  "Target position when centering buffers as a ratio of frame height.
-A value from 0 to 1 where lower values center buffers higher up in the screen.
-Used in `topspace-recenter-buffer' when called or when opening/resizing buffers
-if `topspace-autocenter-buffers' returns non-nil."
+  "Target position when centering buffers.
+Can be set to a float, integer, or function that returns a float or integer.
+
+If a float, it represents the position to center buffers as a ratio of
+frame height, and can be a value from 0.0 to 1.0 where lower values center
+buffers higher up in the screen.
+
+If a positive or negative integer value, buffers will be centered by putting
+their center line at a distance of `topspace-center-position' lines away
+from the top of the selected window when positive, or from the bottom
+of the selected window when negative.
+The distance will be in units of lines with height `default-line-height',
+and the value should be less than the height of the window.
+
+If a function, the same rules above apply to the functions' return value.
+
+Used in `topspace-recenter-buffer' when called without an argument, or when
+opening/resizing buffers if `topspace-autocenter-buffers' returns non-nil."
   :group 'topspace
-  :type 'float)
-
-(defcustom topspace-active t
-  "Determine when `topspace-mode' mode is active / has any effect on buffer.
-This is useful in particular when `global-topspace-mode' is enabled but you want
-`topspace-mode' to be inactive in certain buffers or in any specific
-circumstance.  When inactive, `topspace-mode' will still technically be on,
-but will be effectively off and have no effect on the buffer.
-Note that if `topspace-active' returns non-nil but `topspace-mode' is off,
-`topspace-mode' will still be disabled.
-
-If non-nil, then always be active.  If nil, never be active.
-If set to a predicate function (function that returns a boolean value),
-then be active only when that function returns a non-nil value."
-  :type '(choice (const :tag "always" t)
-                 (const :tag "never" nil)
-                 (function :tag "predicate function")))
+  :type '(choice float integer
+                 (function :tag "float or integer function")))
 
 (defcustom topspace-empty-line-indicator
   #'topspace-default-empty-line-indicator
@@ -136,6 +153,7 @@ Set this variable to nil to disable the mode line completely."
 (defvar topspace-keymap (make-sparse-keymap)
   "Keymap for Topspace commands.
 By default this is left empty for users to set with their own
+preferred bindings.")
 ```
 
 # Extra functions
@@ -143,34 +161,98 @@ By default this is left empty for users to set with their own
 ```elisp
 ;;;###autoload
 (defun topspace-height ()
-  "Return the top space height in the selected window in number of lines.
+  "Return the top space height in lines for current buffer in selected window.
 The top space is the empty region in the buffer above the top text line.
 The return value is of type float, and is equivalent to
-the top space pixel height / `default-line-height'."
+the top space pixel height / `default-line-height'.
+
+If the height does not exist yet, zero will be returned if
+`topspace-autocenter-buffers' returns nil, otherwise a value that centers
+the buffer will be returned according to `topspace-center-position'.
+
+If the stored height is now invalid, it will first be corrected by
+`topspace--correct-height' before being returned.
+Valid top space line heights are:
+- never negative,
+- only positive when `window-start' equals 1,
+  `topspace-active' returns non-nil, and `topspace-mode' is enabled,
+- not larger than `topspace--window-height' minus `topspace--context-lines'."
 ...
 
 ;;;###autoload
-(defun topspace-recenter-buffer ()
-  "Add enough top space in the selected window to center small buffers.
+(defun topspace-set-height (&optional total-lines)
+  "Set and redraw the top space overlay to have a target height of TOTAL-LINES.
+This sets the top space height for the current buffer in the selected window.
+Int or float values are accepted for TOTAL-LINES, and the value is
+considered to be in units of `default-line-height'.
+
+If argument TOTAL-LINES is not provided, the top space height will be set to
+the value returned by `topspace-height', which can be useful when redrawing a
+previously stored top space height in a window after a new buffer is
+displayed in it, or when first setting the height to an initial default value
+according to `topspace-height'.
+
+If TOTAL-LINES is invalid, it will be corrected by `topspace--correct-height'.
+Valid top space line heights are:
+- never negative,
+- only positive when `window-start' equals 1,
+  `topspace-active' returns non-nil, and `topspace-mode' is enabled,
+- not larger than `topspace--window-height' minus `topspace--context-lines'."
+  (interactive "p")
+...
+
+;;;###autoload
+(defun topspace-recenter-buffer (&optional position)
+  "Add enough top space to center small buffers according to POSITION.
+POSITION defaults to `topspace-center-position'.
+
+If POSITION is a float, it represents the position to center buffer as a ratio
+of frame height, and can be a value from 0.0 to 1.0 where lower values center
+the buffer higher up in the screen.
+
+If POSITION is a positive or negative integer value, buffer will be centered
+by putting its center line at a distance of `topspace-center-position' lines
+away from the top of the selected window when positive, or from the bottom
+of the selected window when negative.
+The distance will be in units of lines with height `default-line-height',
+and the value should be less than the height of the window.
+
 Top space will not be added if the number of text lines in the buffer is larger
-than or close to the selected window's height.
-Customize `topspace-center-position' to adjust the centering position.
+than or close to the selected window's height, or if `window-start' is greater
+than 1.
+
+Customize `topspace-center-position' to adjust the default centering position.
 Customize `topspace-autocenter-buffers' to run this command automatically
 after first opening buffers and after window sizes change."
   (interactive)
 ...
 
+;;;###autoload
+(defun topspace-default-active ()
+  "Default function that `topspace-active' is set to.
+Return nil if the selected window is in a child-frame."
+...
+
+;;;###autoload
 (defun topspace-default-autocenter-buffers ()
-  "Return non-nil if buffer is allowed to be auto-centered.
+  "Default function that `topspace-autocenter-buffers' is set to.
 Return nil if the selected window is in a child-frame or user has scrolled
 buffer in selected window."
 ...
 
+;;;###autoload
 (defun topspace-default-empty-line-indicator ()
-  "Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
+  "Default function that `topspace-empty-line-indicator' is set to.
+Put the empty-line bitmap in fringe if `indicate-empty-lines' is non-nil.
 This is done by adding a 'display property to the returned string.
 The bitmap used is the one that the `empty-line' logical fringe indicator
 maps to in `fringe-indicator-alist'."
+...
+
+;;;###autoload
+(defun topspace-buffer-was-scrolled-p ()
+  "Return t if current buffer has been scrolled in the selected window before.
+This is provided since it is used in `topspace-default-autocenter-buffers'."
 ...
 ```
 
