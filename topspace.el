@@ -268,7 +268,7 @@ Valid top space line heights are:
 - only positive when `window-start' equals 1,
   `topspace-active' returns non-nil, and `topspace-mode' is enabled,
 - not larger than `topspace--window-height' minus `topspace--context-lines'."
-  (interactive "p")
+  (interactive "P")
   (let ((old-height) (window (selected-window)))
     ;; Get the previous top space height
     (unless old-height (setq old-height (topspace-height)))
