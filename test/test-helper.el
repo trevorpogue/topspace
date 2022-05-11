@@ -9,7 +9,7 @@
 (when (require 'undercover nil t)
   (setq undercover-force-coverage t)
   (undercover "*.el"
-              (:report-file "coverage/.resultset.json")
+              ;; (:report-file "coverage/.resultset.json")
               ;; (:report-format 'simplecov)
               ;; (:report-format 'text)
               ))
