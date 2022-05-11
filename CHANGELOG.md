@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Add `topspace-set-height`, enhance `topspace-center-position` [\#19](https://github.com/trevorpogue/topspace/pull/19) ([trevorpogue](https://github.com/trevorpogue))
 - Add `topspace-height` function for use by external packages [\#15](https://github.com/trevorpogue/topspace/pull/15) ([trevorpogue](https://github.com/trevorpogue))
 - Add support for `smooth-scrolling` package [\#14](https://github.com/trevorpogue/topspace/pull/14) ([trevorpogue](https://github.com/trevorpogue))
 
