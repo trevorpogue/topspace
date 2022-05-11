@@ -460,8 +460,9 @@ ARGS are needed for compatibility with `advice-add'."
 Will only set to HEIGHT if HEIGHT is a valid value as per
 `topspace--correct-height'.  This only sets the underlying stored value for
 top space height, and it does not redraw the top space."
-  (setf (alist-get (selected-window) topspace--heights)
-        (topspace--correct-height height)))
+  (setq height (topspace--correct-height height))
+  (setf (alist-get (selected-window) topspace--heights) height)
+  height)
 
 (defun topspace--correct-height (height)
   "Return HEIGHT if a valid top space line height, else a valid value.
