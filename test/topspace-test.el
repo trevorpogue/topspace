@@ -47,6 +47,7 @@
  :var (prev-height)
 
  (before-all
+  (setq topspace-center-position 0.42)
   (topspace--cmds (set-frame-size (selected-frame) 90 24))
   (switch-to-buffer (find-file-noselect "./topspace.el" t))
   (global-topspace-mode))
@@ -55,7 +56,7 @@
 
  (it "reduces top space height before cursor can move below window-end"
      (goto-char 1)
-     (topspace--draw 0)
+     (topspace-set-height 0)
      (topspace--cmds
       (scroll-down)
       (scroll-up)
@@ -83,7 +84,7 @@
   "topspace--after-scroll"
   (it "is needed when first scrolling above the top line"
       (goto-char 1)
-      (topspace--draw 0)
+      (topspace-set-height 0)
       (scroll-up-line)
       (scroll-down 2)
       (expect (round (topspace-height)) :to-equal 1)))
@@ -94,17 +95,17 @@
   (it "autocenters buffer when window size changes"
       (switch-to-buffer "*scratch*")
       (run-hooks 'window-configuration-change-hook)
-      (expect (round (* (topspace-height) 10)) :to-equal 86)
+      (expect (round (* (topspace-height) 10)) :to-equal 78)
       (topspace--cmds (set-frame-size (selected-frame) 90 22))
       (run-hooks 'window-configuration-change-hook)
-      (expect (round (* (topspace-height) 10)) :to-equal 78)
+      (expect (round (* (topspace-height) 10)) :to-equal 70)
       (topspace--cmds (set-frame-size (selected-frame) 90 24)))
 
   (it "will redraw topspace even if window height didn't change
 in case topspace-autocenter-buffers changed return value"
-      (spy-on 'topspace--draw)
+      (spy-on 'topspace-set-height)
       (topspace--window-configuration-change)
-      (expect 'topspace--draw :to-have-been-called)))
+      (expect 'topspace-set-height :to-have-been-called)))
 
  (describe
   "topspace-mode"
@@ -112,19 +113,31 @@ in case topspace-autocenter-buffers changed return value"
       (topspace-mode -1)
       (expect topspace-mode :to-equal nil)
       (scroll-up-line)
-      (topspace--draw 1)
+      (topspace-set-height 1)
       (expect (topspace-height) :to-equal 0)
       (ignore-errors (scroll-down-line))
       (topspace-mode 1)
-      (expect topspace-mode :to-equal t)))
+      (expect topspace-mode :to-equal t)
+      (switch-to-buffer "*scratch*")
+      (topspace-mode -1)
+      (topspace-recenter-buffer)
+      (expect (topspace-height) :to-equal 0)
+      (topspace-mode 1)))
 
  (describe
-  "topspace--draw-increase-height"
+  "topspace--center-line"
+  (it "has an optional argument that takes the value `topspace-center-position'
+by default"
+      (expect (topspace--center-line) :to-equal
+              (topspace--center-line topspace-center-position))))
+
+ (describe
+  "topspace--increase-height"
   (it "increases top space height"
       (goto-char 1)
       (recenter)
       (setq prev-height (topspace-height))
-      (topspace--draw-increase-height 1)
+      (topspace--increase-height 1)
       (expect (topspace-height) :to-equal (1+ prev-height))))
 
  (describe
@@ -150,7 +163,7 @@ in case topspace-autocenter-buffers changed return value"
   (it "allows smooth-scrolling package to work with topspace"
       :to-equal (smooth-scroll-lines-above-point)
       (progn (goto-char 1)
-             (topspace--draw 0)
+             (topspace-set-height 0)
              (goto-line smooth-scroll-margin)
              (set-window-start (selected-window) (point))
              (scroll-down smooth-scroll-margin)
@@ -222,6 +235,57 @@ returns nil"
   (it "can accept an arg or no args"
       (expect (topspace--current-line-plus-topspace)
               :to-equal (topspace--current-line-plus-topspace
-                         (topspace-height))))))
+                         (topspace-height)))))
+
+ (describe
+  "topspace-center-position"
+  (it "can be a float value or function, in which case
+ its return value represents the position to center buffers as a ratio of
+ frame height, and can be a value from 0 to 1 where lower values center
+ buffers higher up in the screen."
+      (setq topspace--prev-center-position topspace-center-position)
+      (setq topspace-center-position 0.5)
+      (switch-to-buffer "*scratch*")
+      (topspace-recenter-buffer)
+      (expect (topspace-height) :to-equal
+              (- (* (topspace--frame-height)
+                    (topspace--eval-choice topspace-center-position))
+                 (window-top-line)))
+      (defun topspace--center-position-test () 0.5)
+      (setq topspace-center-position #'topspace--center-position-test)
+      (topspace-recenter-buffer)
+      (expect (topspace-height) :to-equal
+              (- (* (topspace--frame-height)
+                    (topspace--eval-choice topspace-center-position))
+                 (window-top-line)))
+      (setq topspace-center-position topspace--prev-center-position))
+
+  (it "can be an integer value or function, in which case:
+
+If a positive integer value, buffers will be centered putting their center
+line at a distance of `topspace-center-position' from the top of the
+selected window.
+
+If a negative integer value, buffers will be centered putting their center
+line at line at a distance of `topspace-center-position' away from
+the bottom of the selected window.
+(ARG should be less than the height of the window.)"
+      (setq topspace--prev-center-position topspace-center-position)
+      (setq topspace-center-position 4)
+      (switch-to-buffer "*scratch*")
+      ;; (expect (topspace-height) :to-equal (/ (frame-text-lines) 2))
+      (topspace-recenter-buffer)
+      (expect (topspace-height) :to-equal 4.0)
+      (defun topspace--center-position-test () 4)
+      (setq topspace-center-position #'topspace--center-position-test)
+      (topspace-recenter-buffer)
+      (expect (topspace-height) :to-equal 4.0)
+      (setq topspace-center-position -4)
+      (topspace-recenter-buffer)
+      (expect (topspace-height) :to-equal (- (topspace--window-height)
+                                             (topspace--context-lines)))
+      (setq topspace-center-position topspace--prev-center-position))
+  )
+ )
 
 ;;; test-topspace.el ends here
