@@ -183,7 +183,7 @@ Valid top space line heights are:
 (defun topspace-set-height (&optional total-lines)
   "Set and redraw the top space overlay to have a target height of TOTAL-LINES.
 This sets the top space height for the current buffer in the selected window.
-Int or float values are accepted for TOTAL-LINES, and the value is
+Integer or float values are accepted for TOTAL-LINES, and the value is
 considered to be in units of `default-line-height'.
 
 If argument TOTAL-LINES is not provided, the top space height will be set to
@@ -198,7 +198,7 @@ Valid top space line heights are:
 - only positive when `window-start' equals 1,
   `topspace-active' returns non-nil, and `topspace-mode' is enabled,
 - not larger than `topspace--window-height' minus `topspace--context-lines'."
-  (interactive "p")
+  (interactive "P")
 ...
 
 ;;;###autoload

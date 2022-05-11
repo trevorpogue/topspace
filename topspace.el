@@ -253,7 +253,7 @@ Valid top space line heights are:
 (defun topspace-set-height (&optional total-lines)
   "Set and redraw the top space overlay to have a target height of TOTAL-LINES.
 This sets the top space height for the current buffer in the selected window.
-Int or float values are accepted for TOTAL-LINES, and the value is
+Integer or float values are accepted for TOTAL-LINES, and the value is
 considered to be in units of `default-line-height'.
 
 If argument TOTAL-LINES is not provided, the top space height will be set to
@@ -557,7 +557,8 @@ mode-line in centering."
       (goto-char start)
       (beginning-of-visual-line)
       (while (< (point) end)
-        (setq result (+ result (* (vertical-motion 1) (line-pixel-height))))))
+        (setq result (+ result (line-pixel-height)))
+        (vertical-motion 1)))
     result))
 
 (defun topspace--count-lines-slow (start end)
@@ -575,23 +576,29 @@ If that doesn't work it uses `topspace--count-lines-slow'."
   (setq end (min end (point-max)))
   (setq start (max start (point-min)))
   (let ((old-end) (old-start) (swap)
-        (line-height (float (default-line-height))))
-    (when (> start end) (setq swap end) (setq end start) (setq start swap))
-    (setq old-end end) (setq old-start start)
-    (setq end (min end (- (window-end) 1)))
-    (setq start (max start (window-start)))
-    (let ((end-y (window-absolute-pixel-position end))
-          (start-y (window-absolute-pixel-position start)))
-      (+
-       (if (> old-end end) (topspace--count-lines-slow end old-end) 0)
-       (if (< old-start start) (topspace--count-lines-slow old-start start) 0)
-       (condition-case nil
-           ;; first try counting lines by getting the pixel difference
-           ;; between end and start and dividing by `default-line-height'
-           (/ (- (cdr end-y) (cdr start-y)) line-height)
-         ;; if the pixel method above doesn't work do this slower method
-         ;; (it won't work if either START or END are not visible in window)
-         (error (topspace--count-lines-slow start end)))))))
+        (line-height (float (default-line-height)))
+        (window-height (topspace--window-height)))
+    (cond
+     ((> (- (line-number-at-pos end) (line-number-at-pos start))
+         (* 2 window-height))
+      window-height)
+     (t
+      (when (> start end) (setq swap end) (setq end start) (setq start swap))
+      (setq old-end end) (setq old-start start)
+      (setq end (min end (- (window-end) 1)))
+      (setq start (max start (window-start)))
+      (let ((end-y (window-absolute-pixel-position end))
+            (start-y (window-absolute-pixel-position start)))
+        (+
+         (if (> old-end end) (topspace--count-lines-slow end old-end) 0)
+         (if (< old-start start) (topspace--count-lines-slow old-start start) 0)
+         (condition-case nil
+             ;; first try counting lines by getting the pixel difference
+             ;; between end and start and dividing by `default-line-height'
+             (/ (- (cdr end-y) (cdr start-y)) line-height)
+           ;; if the pixel method above doesn't work do this slower method
+           ;; (it won't work if either START or END are not visible in window)
+           (error (topspace--count-lines-slow start end)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Overlay drawing
@@ -717,13 +724,13 @@ Topspace will not be enabled for:
       (setq topspace--advice-added t)
       (advice-add #'scroll-up :filter-args #'topspace--filter-args-scroll-up)
       (advice-add #'scroll-down :filter-args
-                    #'topspace--filter-args-scroll-down)
+                  #'topspace--filter-args-scroll-down)
       (advice-add #'scroll-up :after #'topspace--after-scroll)
       (advice-add #'scroll-down :after #'topspace--after-scroll)
       (advice-add #'recenter :after #'topspace--after-recenter)
       (when (fboundp 'smooth-scroll-lines-above-point)
         (advice-add #'smooth-scroll-lines-above-point
-                      :override #'topspace--smooth-scroll-lines-above-point)))
+                    :override #'topspace--smooth-scroll-lines-above-point)))
     (dolist (window (get-buffer-window-list))
       (with-selected-window window (topspace-set-height)))))
 
