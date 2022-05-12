@@ -96,11 +96,16 @@ then do auto-centering only when that function returns a non-nil value."
 
 (defcustom topspace-center-position 0.4
   "Target position when centering buffers.
-Can be set to a float, integer, or function that returns a float or integer.
 
-If a float, it represents the position to center buffers as a ratio of
-frame height, and can be a value from 0.0 to 1.0 where lower values center
-buffers higher up in the screen.
+Used in `topspace-recenter-buffer' when called without an argument, or when
+opening/resizing buffers if `topspace-autocenter-buffers' returns non-nil.
+
+Can be set to a floating-point number, integer, or function that returns a
+floating-point number or integer.
+
+If a floating-point number, it represents the position to center buffers as a
+ratio of frame height, and can be a value from 0.0 to 1.0 where lower values
+center buffers higher up in the screen.
 
 If a positive or negative integer value, buffers will be centered by putting
 their center line at a distance of `topspace-center-position' lines away
@@ -109,10 +114,7 @@ of the selected window when negative.
 The distance will be in units of lines with height `default-line-height',
 and the value should be less than the height of the window.
 
-If a function, the same rules above apply to the functions' return value.
-
-Used in `topspace-recenter-buffer' when called without an argument, or when
-opening/resizing buffers if `topspace-autocenter-buffers' returns non-nil."
+If a function, the same rules above apply to the function's return value."
   :group 'topspace
   :type '(choice float integer
                  (function :tag "float or integer function")))
@@ -205,6 +207,9 @@ Valid top space line heights are:
 (defun topspace-recenter-buffer (&optional position)
   "Add enough top space to center small buffers according to POSITION.
 POSITION defaults to `topspace-center-position'.
+Top space will not be added if the number of text lines in the buffer is larger
+than or close to the selected window's height, or if `window-start' is greater
+than 1.
 
 If POSITION is a float, it represents the position to center buffer as a ratio
 of frame height, and can be a value from 0.0 to 1.0 where lower values center
@@ -252,7 +257,9 @@ maps to in `fringe-indicator-alist'."
 ;;;###autoload
 (defun topspace-buffer-was-scrolled-p ()
   "Return t if current buffer has been scrolled in the selected window before.
-This is provided since it is used in `topspace-default-autocenter-buffers'."
+This is provided since it is used in `topspace-default-autocenter-buffers'.
+Scrolling is only recorded if topspace is active in the buffer at the time of
+scrolling."
 ...
 ```
 

@@ -108,6 +108,11 @@ An error occurs in this mode any time `scroll-down' is passed a
 non-zero value, which halts tests and makes testing many topspace features
 impossible.  So this variable is set to zero when testing in this mode.")
 
+(defvar topspace--context-lines 1
+  "Determines how many lines away from `window-end' the cursor can get.
+This is relevant when scrolling in such a way that the cursor tries to
+move past `window-end'.")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Customization
 
@@ -159,11 +164,16 @@ then do auto-centering only when that function returns a non-nil value."
 
 (defcustom topspace-center-position 0.4
   "Target position when centering buffers.
-Can be set to a float, integer, or function that returns a float or integer.
 
-If a float, it represents the position to center buffers as a ratio of
-frame height, and can be a value from 0.0 to 1.0 where lower values center
-buffers higher up in the screen.
+Used in `topspace-recenter-buffer' when called without an argument, or when
+opening/resizing buffers if `topspace-autocenter-buffers' returns non-nil.
+
+Can be set to a floating-point number, integer, or function that returns a
+floating-point number or integer.
+
+If a floating-point number, it represents the position to center buffers as a
+ratio of frame height, and can be a value from 0.0 to 1.0 where lower values
+center buffers higher up in the screen.
 
 If a positive or negative integer value, buffers will be centered by putting
 their center line at a distance of `topspace-center-position' lines away
@@ -172,13 +182,10 @@ of the selected window when negative.
 The distance will be in units of lines with height `default-line-height',
 and the value should be less than the height of the window.
 
-If a function, the same rules above apply to the functions' return value.
-
-Used in `topspace-recenter-buffer' when called without an argument, or when
-opening/resizing buffers if `topspace-autocenter-buffers' returns non-nil."
+If a function, the same rules above apply to the function's return value."
   :group 'topspace
   :type '(choice float integer
-                 (function :tag "float or integer function")))
+                 (function :tag "floating-point number or integer function")))
 
 (defcustom topspace-empty-line-indicator
   #'topspace-default-empty-line-indicator
@@ -225,7 +232,7 @@ preferred bindings.")
 (defun topspace-height ()
   "Return the top space height in lines for current buffer in selected window.
 The top space is the empty region in the buffer above the top text line.
-The return value is of type float, and is equivalent to
+The return value is a floating-point number, and is equivalent to
 the top space pixel height / `default-line-height'.
 
 If the height does not exist yet, zero will be returned if
@@ -238,14 +245,14 @@ Valid top space line heights are:
 - never negative,
 - only positive when `window-start' equals 1,
   `topspace-active' returns non-nil, and `topspace-mode' is enabled,
-- not larger than `topspace--window-height' minus `topspace--context-lines'."
+- not larger than `window-text-height' minus `topspace--context-lines'."
   (let ((height) (window (selected-window)))
     ;; First try returning previously stored top space height
     (setq height (alist-get window topspace--heights))
     (unless height
       ;; If it has never been created before then get the default value
       (setq height (if (topspace--eval-choice topspace-autocenter-buffers)
-                       (topspace--height-to-recenter-buffer) 0)))
+                       (topspace--height-to-recenter-buffer) 0.0)))
     ;; Correct, store, and return the new value
     (topspace--set-height height)))
 
@@ -253,7 +260,7 @@ Valid top space line heights are:
 (defun topspace-set-height (&optional total-lines)
   "Set and redraw the top space overlay to have a target height of TOTAL-LINES.
 This sets the top space height for the current buffer in the selected window.
-Integer or float values are accepted for TOTAL-LINES, and the value is
+Integer or floating-point numbers are accepted for TOTAL-LINES, and the value is
 considered to be in units of `default-line-height'.
 
 If argument TOTAL-LINES is not provided, the top space height will be set to
@@ -267,7 +274,7 @@ Valid top space line heights are:
 - never negative,
 - only positive when `window-start' equals 1,
   `topspace-active' returns non-nil, and `topspace-mode' is enabled,
-- not larger than `topspace--window-height' minus `topspace--context-lines'."
+- not larger than `window-text-height' minus `topspace--context-lines'."
   (interactive "P")
   (let ((old-height) (window (selected-window)))
     ;; Get the previous top space height
@@ -299,10 +306,13 @@ Valid top space line heights are:
 (defun topspace-recenter-buffer (&optional position)
   "Add enough top space to center small buffers according to POSITION.
 POSITION defaults to `topspace-center-position'.
+Top space will not be added if the number of text lines in the buffer is larger
+than or close to the selected window's height, or if `window-start' is greater
+than 1.
 
-If POSITION is a float, it represents the position to center buffer as a ratio
-of frame height, and can be a value from 0.0 to 1.0 where lower values center
-the buffer higher up in the screen.
+If POSITION is a floating-point, it represents the position to center buffer as
+a ratio of frame height, and can be a value from 0.0 to 1.0 where lower values
+center the buffer higher up in the screen.
 
 If POSITION is a positive or negative integer value, buffer will be centered
 by putting its center line at a distance of `topspace-center-position' lines
@@ -320,7 +330,7 @@ Customize `topspace-autocenter-buffers' to run this command automatically
 after first opening buffers and after window sizes change."
   (interactive)
   (cond
-   ((not (topspace--enabled)) (topspace-set-height 0))
+   ((not (topspace--enabled)) (topspace-set-height 0.0))
    (t (topspace-set-height (topspace--height-to-recenter-buffer position)))))
 
 ;;;###autoload
@@ -361,7 +371,9 @@ maps to in `fringe-indicator-alist'."
 ;;;###autoload
 (defun topspace-buffer-was-scrolled-p ()
   "Return t if current buffer has been scrolled in the selected window before.
-This is provided since it is used in `topspace-default-autocenter-buffers'."
+This is provided since it is used in `topspace-default-autocenter-buffers'.
+Scrolling is only recorded if topspace is active in the buffer at the time of
+scrolling."
   (alist-get (selected-window) topspace--buffer-was-scrolled))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -385,10 +397,10 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
   "Run before `scroll-down' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-down'."
   (cond
-   ((not (topspace--enabled)) (topspace-set-height 0) total-lines)
+   ((not (topspace--enabled)) (topspace-set-height 0.0) total-lines)
    (t
     (setq total-lines (car total-lines))
-    (setq total-lines (or total-lines (- (topspace--window-height)
+    (setq total-lines (or total-lines (- (window-text-height)
                                          next-screen-context-lines)))
     (setq topspace--total-lines-scrolling total-lines)
     (list (* topspace--scroll-down-scale-factor
@@ -398,10 +410,10 @@ TOTAL-LINES is used in the same way as in `scroll-down'."
   "Run before `scroll-up' for scrolling above the top line.
 TOTAL-LINES is used in the same way as in `scroll-up'."
   (cond
-   ((not (topspace--enabled)) (topspace-set-height 0) total-lines)
+   ((not (topspace--enabled)) (topspace-set-height 0.0) total-lines)
    (t
     (setq total-lines (car total-lines))
-    (setq total-lines (* (or total-lines (- (topspace--window-height)
+    (setq total-lines (* (or total-lines (- (window-text-height)
                                             next-screen-context-lines)) -1))
     (setq topspace--total-lines-scrolling total-lines)
     (list (* (topspace--scroll total-lines) -1)))))
@@ -470,18 +482,18 @@ Valid top space line heights are:
 - never negative,
 - only positive when `window-start' equals 1,
   `topspace-active' returns non-nil, and `topspace-mode' is enabled,
-- not larger than `topspace--window-height' minus `topspace--context-lines'."
-  (let ((max-height (- (topspace--window-height) (topspace--context-lines))))
-    (when (> (window-start) 1) (setq height 0))
-    (when (< height 0) (setq height 0))
+- not larger than `window-text-height' minus `topspace--context-lines'."
+  (let ((max-height (- (window-text-height) topspace--context-lines)))
+    (setq height (float height))
+    (when (> (window-start) 1) (setq height 0.0))
+    (when (< height 0) (setq height 0.0))
     (when (> height max-height) (setq height max-height))
-    (unless (topspace--enabled) (setq height 0)))
+    (unless (topspace--enabled) (setq height 0.0)))
   height)
 
-(defun topspace--context-lines ()
-  "Return how many lines away from `window-end' the cursor can get.
-This is relevant when scrolling in such a way that the cursor tries to
-move past `window-end'." 1)
+(defun topspace--window-end ()
+  "Return the up-to-date `window-end'."
+  (or (window-end (selected-window) t)))
 
 (defun topspace--total-lines-past-max (&optional topspace-height)
   "Used when making sure top space height does not push cursor off-screen.
@@ -489,7 +501,7 @@ Return how many lines past the bottom of the window the cursor would get pushed
 if setting the top space to the target value TOPSPACE-HEIGHT.
 Any value above 0 flags that the target TOPSPACE-HEIGHT is too large."
   (- (topspace--current-line-plus-topspace topspace-height)
-     (- (topspace--window-height) (topspace--context-lines))))
+     (- (window-text-height) topspace--context-lines)))
 
 (defun topspace--current-line-plus-topspace (&optional topspace-height)
   "Used when making sure top space height does not push cursor off-screen.
@@ -500,12 +512,12 @@ Return the current line plus the top space height TOPSPACE-HEIGHT."
 (defun topspace--calculate-recenter-line-offset (&optional line-offset)
   "Convert LINE-OFFSET to a line offset from the top of the window.
 It is interpreted in the same way as the first ARG in `recenter'."
-  (unless line-offset (setq line-offset (/ (topspace--window-height) 2)))
+  (unless line-offset (setq line-offset (/ (float (window-text-height)) 2)))
   (when (< line-offset 0)
     ;; subtracting 1 below made `recenter-top-bottom' act correctly
     ;; when it moves point to bottom and top space is added to get there
-    (setq line-offset (- (- (topspace--window-height) line-offset)
-                         (topspace--context-lines)
+    (setq line-offset (- (- (window-text-height) line-offset)
+                         topspace--context-lines
                          1)))
   line-offset)
 
@@ -514,8 +526,9 @@ It is interpreted in the same way as the first ARG in `recenter'."
 Return how many lines away from the top of the selected window that the
 buffer's center line will be moved to based on POSITION, which defaults to
 `topspace-center-position'.  Note that when POSITION
-is a float, the return value is only valid for windows starting at the top
-of the frame, which must be accounted for in the calling functions."
+is a floating-point number, the return value is only valid for windows
+starting at the top of the frame, which must be accounted for in the calling
+functions."
   (setq position (or position (topspace--eval-choice topspace-center-position)))
   (if (floatp position)
       (* (topspace--frame-height) position)
@@ -526,26 +539,24 @@ of the frame, which must be accounted for in the calling functions."
 Buffer will be centered according to POSITION, which defaults to
 `topspace-center-position'."
   (setq position (or position (topspace--eval-choice topspace-center-position)))
-  (let ((buffer-height (topspace--count-lines (window-start) (window-end)))
+  (let ((buffer-height (topspace--count-lines
+                        (window-start)
+                        (topspace--window-end)))
         (result)
-        (window-height (topspace--window-height)))
+        (window-height (window-text-height)))
     (setq result (- (topspace--center-line position) (/ buffer-height 2)))
     (when (floatp position) (setq result (- result (window-top-line))))
     (when (> (+ result buffer-height)
-             (- window-height (topspace--context-lines)))
+             (- window-height topspace--context-lines))
       (setq result (- (- window-height buffer-height)
-                      (topspace--context-lines))))
+                      topspace--context-lines)))
     result))
 
 (defun topspace--frame-height ()
   "Return the number of lines in the selected frame's text area.
 Subtract 3 from `frame-text-lines' to discount echo area and bottom
 mode-line in centering."
-  (float (- (frame-text-lines) 3)))
-
-(defun topspace--window-height ()
-  "Return the number of screen lines in the selected window rounded down."
-  (float (floor (window-screen-lines))))
+  (- (frame-text-lines) 3))
 
 (defun topspace--count-pixel-height (start end)
   "Return total pixels between points START and END as if they're both visible."
@@ -573,52 +584,58 @@ return unexpected value when END is in column 0. This fixes that issue.
 This function also tries to first count the lines using a potentially faster
 technique involving `window-absolute-pixel-position'.
 If that doesn't work it uses `topspace--count-lines-slow'."
-  (setq end (min end (point-max)))
-  (setq start (max start (point-min)))
   (let ((old-end) (old-start) (swap)
-        (line-height (float (default-line-height)))
-        (window-height (topspace--window-height)))
-    (cond
-     ((> (- (line-number-at-pos end) (line-number-at-pos start))
-         (* 2 window-height))
-      window-height)
-     (t
-      (when (> start end) (setq swap end) (setq end start) (setq start swap))
-      (setq old-end end) (setq old-start start)
-      (setq end (min end (- (window-end) 1)))
-      (setq start (max start (window-start)))
-      (let ((end-y (window-absolute-pixel-position end))
-            (start-y (window-absolute-pixel-position start)))
-        (+
-         (if (> old-end end) (topspace--count-lines-slow end old-end) 0)
-         (if (< old-start start) (topspace--count-lines-slow old-start start) 0)
-         (condition-case nil
-             ;; first try counting lines by getting the pixel difference
-             ;; between end and start and dividing by `default-line-height'
-             (/ (- (cdr end-y) (cdr start-y)) line-height)
-           ;; if the pixel method above doesn't work do this slower method
-           ;; (it won't work if either START or END are not visible in window)
-           (error (topspace--count-lines-slow start end)))))))))
+        (line-height (float (default-line-height))))
+    (when (> start end) (setq swap end) (setq end start) (setq start swap))
+    (setq old-end end) (setq old-start start)
+    ;; use faster visual method for counting portion of lines in screen:
+    (when (< start (topspace--window-end))
+      (setq end (min end (topspace--window-end))))
+    (when (> end (window-start))
+      (setq start (max start (window-start))))
+    (let ((end-y (window-absolute-pixel-position end))
+          (start-y (window-absolute-pixel-position start)))
+      (+
+       (if (> old-end end) (topspace--count-lines-slow end old-end) 0.0)
+       (if (< old-start start) (topspace--count-lines-slow old-start start) 0.0)
+       (condition-case nil
+           ;; first try counting lines by getting the pixel difference
+           ;; between end and start and dividing by `default-line-height'
+           (/ (- (cdr end-y) (cdr start-y)) line-height)
+         ;; if the pixel method above doesn't work do this slower method
+         ;; (it won't work if either START or END are not visible in window)
+         (error (topspace--count-lines-slow start end)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Overlay drawing
 
 (defun topspace--text (height)
   "Return the topspace text that appears in the top overlay with height HEIGHT."
-  (let ((text "")
-        (indicator-line (topspace--eval-choice
-                         topspace-empty-line-indicator)))
-    (setq indicator-line (cl-concatenate 'string indicator-line "\n"))
-    (when (> height 0)
+  (cond
+   ((= (round height) 0) "")
+   ((= (round height) 1)
+    ;; comment a) It seems there is a bug in Emacs where you cannot set a
+    ;; string's line-height to a positive float less than 1.  So in this
+    ;; condition, settle for rounding the top space height up to 1
+    ;; TODO: open issue with Emacs devel mailing list for this
+    "\n")
+   (t
+    ;; set the text to a series of newline characters with the last line
+    ;; having a line-height set to a float accounting for the potential
+    ;; fractional portion of the top space height
+    (let ((text "")
+          (indicator-line (topspace--eval-choice
+                           topspace-empty-line-indicator)))
+      (setq indicator-line (cl-concatenate 'string indicator-line "\n"))
       (dotimes (n (1- (floor height)))
         n ;; remove flycheck warning
         (setq text (cl-concatenate 'string text indicator-line)))
       (setq indicator-line
+            ;; set that last line with a float line-height.
+            ;; The float will be set to >1 due to comment a) above
             (propertize indicator-line 'line-height
-                        (round (* (+ 1.0 (- height (floor height)))
-                                  (default-line-height)))))
-      (setq text (cl-concatenate 'string text indicator-line))
-      text)))
+                        (- (1+ height) (floor height))))
+      (cl-concatenate 'string text indicator-line)))))
 
 (defun topspace--increase-height (total-lines)
   "Increase the top space line height by the target amount of TOTAL-LINES."
@@ -657,9 +674,9 @@ ARG defaults to 1."
 (defun topspace--window-configuration-change ()
   "Update top spaces when window buffers change or windows are resized."
   (setq topspace--got-first-window-configuration-change t)
-  (let ((current-height (topspace--window-height)) (window (selected-window)))
+  (let ((current-height (window-text-height)) (window (selected-window)))
     (let ((previous-height (alist-get window topspace--previous-window-heights
-                                      0)))
+                                      0.0)))
       (if (and (topspace--eval-choice topspace-autocenter-buffers)
                (not (= previous-height current-height)))
           (topspace-recenter-buffer)
@@ -678,7 +695,7 @@ ARG defaults to 1."
              (> (point) topspace--pre-command-point)
              (< (- (line-number-at-pos (point))
                    (line-number-at-pos topspace--pre-command-point))
-                (topspace--window-height)))
+                (window-text-height)))
     (let ((topspace-height (topspace-height)) (total-lines-past-max))
       (when (> topspace-height 0)
         (setq total-lines-past-max (topspace--total-lines-past-max

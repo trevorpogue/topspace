@@ -114,14 +114,14 @@ in case topspace-autocenter-buffers changed return value"
       (expect topspace-mode :to-equal nil)
       (scroll-up-line)
       (topspace-set-height 1)
-      (expect (topspace-height) :to-equal 0)
+      (expect (topspace-height) :to-equal 0.0)
       (ignore-errors (scroll-down-line))
       (topspace-mode 1)
       (expect topspace-mode :to-equal t)
       (switch-to-buffer "*scratch*")
       (topspace-mode -1)
       (topspace-recenter-buffer)
-      (expect (topspace-height) :to-equal 0)
+      (expect (topspace-height) :to-equal 0.0)
       (topspace-mode 1)))
 
  (describe
@@ -200,6 +200,14 @@ by default"
   ;;               :to-equal
   ;;               (line-number-at-pos (point-max)))))
 
+  (it "can count lines end is larger `window-end'"
+      (set-window-start (selected-window) 300)
+      (expect (round (topspace--count-lines (window-start)
+                                            (1+ (topspace--window-end))))
+              :to-equal (count-screen-lines (window-start)
+                                               (topspace--window-end)))
+      (set-window-start (selected-window) 1))
+
   (it "can count lines if start is larger than end"
       (set-window-start (selected-window) 300)
       (expect (round (topspace--count-lines 401 201))
@@ -217,7 +225,7 @@ by default"
   "topspace--correct-height"
   (it "fixes topspace height when larger than max valid value"
       (let ((max-height
-             (- (topspace--window-height) (topspace--context-lines))))
+             (- (window-text-height) topspace--context-lines)))
         (expect (topspace--correct-height (1+ max-height))
                 :to-equal max-height))))
 
@@ -228,7 +236,7 @@ returns nil"
       (let ((prev-autocenter-val topspace-autocenter-buffers))
         (setq topspace--heights '())
         (setq topspace-autocenter-buffers nil)
-        (expect (topspace-height) :to-equal 0)
+        (expect (topspace-height) :to-equal 0.0)
         (setq topspace-autocenter-buffers prev-autocenter-val))))
 
  (describe
@@ -283,8 +291,8 @@ the bottom of the selected window.
       (expect (topspace-height) :to-equal 4.0)
       (setq topspace-center-position -4)
       (topspace-recenter-buffer)
-      (expect (topspace-height) :to-equal (- (topspace--window-height)
-                                             (topspace--context-lines)))
+      (expect (topspace-height) :to-equal (float (- (window-text-height)
+                                                    topspace--context-lines)))
       (setq topspace-center-position topspace--prev-center-position))
   )
  )
