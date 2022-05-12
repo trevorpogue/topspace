@@ -691,17 +691,24 @@ ARG defaults to 1."
 
 (defun topspace--post-command ()
   "Reduce top space height before the cursor can move past `window-end'."
-  (when (and (= topspace--pre-command-window-start 1)
-             (> (point) topspace--pre-command-point)
+  (when (= topspace--pre-command-window-start 1)
+    (let ((next-line-point))
+      (save-excursion
+        (goto-char topspace--pre-command-point)
+        (vertical-motion 1)
+        (beginning-of-visual-line)
+        (setq next-line-point (point)))
+      (when (and
+             (>= (point) next-line-point)
              (< (- (line-number-at-pos (point))
                    (line-number-at-pos topspace--pre-command-point))
                 (window-text-height)))
-    (let ((topspace-height (topspace-height)) (total-lines-past-max))
-      (when (> topspace-height 0)
-        (setq total-lines-past-max (topspace--total-lines-past-max
-                                    topspace-height))
-        (when (> total-lines-past-max 0)
-          (topspace--decrease-height total-lines-past-max)))))
+        (let ((topspace-height (topspace-height)) (total-lines-past-max))
+          (when (> topspace-height 0)
+            (setq total-lines-past-max (topspace--total-lines-past-max
+                                        topspace-height))
+            (when (> total-lines-past-max 0)
+              (topspace--decrease-height total-lines-past-max)))))))
   (when (and (= (window-start) 1)
              topspace--got-first-window-configuration-change)
     (topspace-set-height)))
