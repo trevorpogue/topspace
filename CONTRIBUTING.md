@@ -32,15 +32,32 @@ Try to follow the following guidelines if you open an issue or pull request:
   and description in grammatically correct, complete sentences.
 
 ## Running Tests
-Check [test.yml][5] to see the latest testing frameworks being used, and the command(s) required to run the tests. When last updating this file, cask and buttercup were being used to run the tests like so:
+Check [ci.yml][5] to see all the details for the testing frameworks being used, the Emacs versions being tested, and the command(s) required to run the tests. 
+TLDR: Cask and buttercup are used for testing and can be run like so:
 
 ```
 cask install
 cask exec buttercup -L .
 ```
 
+## Copyright Assignment
+This package is subject to the same [[https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html][Copyright Assignment]] policy as
+GNU Emacs and all other packages in [[https://elpa.gnu.org/packages/][GNU ELPA]].
+
+Any [[https://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant][legally significant]] contributions can only be accepted after the
+author has completed their paperwork.  Please see [[https://git.savannah.gnu.org/cgit/gnulib.git/tree/doc/Copyright/request-assign.future][the request form]] if
+you want to proceed with the assignment.
+
+The copyright assignment isn't a big deal, it just says that the
+copyright for your submitted changes to Emacs belongs to the FSF.
+This assignment works for all projects related to Emacs.  To obtain it
+you need to:
+* Send one email
+* Send one letter (if you live in the US, it's digital)
+* Wait for some time (recently it's less than a week)
+
 [1]: https://github.com/trevorpogue/topspace/issues
 [2]: http://gun.io/blog/how-to-github-fork-branch-and-pull-request
 [3]: http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [4]: https://help.github.com/articles/using-pull-requests
-[5]: https://github.com/trevorpogue/topspace/blob/main/.github/workflows/test.yml
+[5]: https://github.com/trevorpogue/topspace/blob/main/.github/workflows/ci.yml

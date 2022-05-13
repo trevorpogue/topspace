@@ -1,0 +1,7 @@
+.github
+.gitignore
+test
+company-tests.el
+Cask
+CONTRIBUTING.md
+HISTORY.md

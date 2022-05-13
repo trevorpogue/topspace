@@ -1,28 +1,31 @@
 ;;; topspace.el --- Scroll down & recenter top lines / get upper margins/padding -*- lexical-binding: t -*-
 
-;; Copyright (C) 2021-2022 Trevor Edwin Pogue
+;; Copyright (C) 2021-2022 Free Software Foundation, Inc.
 
 ;; Author: Trevor Edwin Pogue <trevor.pogue@gmail.com>
 ;; Maintainer: Trevor Edwin Pogue <trevor.pogue@gmail.com>
 ;; URL: https://github.com/trevorpogue/topspace
 ;; Keywords: convenience, scrolling, center, cursor, margin, padding
-;; Version: 0.2.1
+;; Version: 0.3.0
 ;; Package-Requires: ((emacs "25.1"))
 
-;; This program is free software: you can redistribute it and/or modify
+;; This file is part of GNU Emacs.
+
+;; GNU Emacs is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; This program is distributed in the hope that it will be useful,
+;; GNU Emacs is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+;; along with GNU Emacs.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+
 ;; TopSpace allows you to scroll down and recenter top lines
 ;; by automatically drawing an upper margin/padding above the top line
 ;; as you scroll down or recenter top text.
@@ -58,9 +61,6 @@
 ;; information.
 
 ;;; Code:
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Debugging
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Private variables
@@ -699,6 +699,9 @@ ARG defaults to 1."
         (beginning-of-visual-line)
         (setq next-line-point (point)))
       (when (and
+             ;; These checks are for improving performance by only running
+             ;; `topspace--count-lines' run by `topspace--total-lines-past-max'
+             ;; when necessary because `topspace--count-lines' is slow
              (>= (point) next-line-point)
              (< (- (line-number-at-pos (point))
                    (line-number-at-pos topspace--pre-command-point))

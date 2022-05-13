@@ -1,8 +1,8 @@
-name: Changelog
+name: News
 on:
   push:
     branches:
-      - main
+      - '*'
   release:
     types:
       - created
@@ -13,17 +13,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: "✏️ Generate changelog"
+      - name: "✏️ Generate news"
         uses: heinrichreimer/github-changelog-generator-action@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           sinceTag: v0.1.2
+          headerLabel: '# History of user-visible changes'
+          output: NEWS.md
           base: HISTORY.md
           issues: no
-#          futureRelease: v0.2.1
+          futureRelease: v0.3.0
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Update Changelog
-          file_pattern: CHANGELOG.md
+          commit_message: Update NEWS.md
+          file_pattern: NEWS.md
