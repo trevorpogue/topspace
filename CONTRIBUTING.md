@@ -41,11 +41,11 @@ cask exec buttercup -L .
 ```
 
 ## Copyright Assignment
-This package is subject to the same [[https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html][Copyright Assignment]] policy as
-GNU Emacs and all other packages in [[https://elpa.gnu.org/packages/][GNU ELPA]].
+This package is subject to the same [Copyright Assignment](https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html) policy as
+GNU Emacs and all other packages in [GNU ELPA](https://elpa.gnu.org/packages/).
 
-Any [[https://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant][legally significant]] contributions can only be accepted after the
-author has completed their paperwork.  Please see [[https://git.savannah.gnu.org/cgit/gnulib.git/tree/doc/Copyright/request-assign.future][the request form]] if
+Any [legally significant](https://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant) contributions can only be accepted after the
+author has completed their paperwork.  Please see [the request form](https://git.savannah.gnu.org/cgit/gnulib.git/tree/doc/Copyright/request-assign.future) if
 you want to proceed with the assignment.
 
 The copyright assignment isn't a big deal, it just says that the
