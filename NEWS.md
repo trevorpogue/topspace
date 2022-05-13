@@ -1,8 +1,8 @@
 # History of user-visible changes
 
-## [v0.3.0](https://github.com/trevorpogue/topspace/tree/v0.3.0) (2022-05-13)
+## [Unreleased](https://github.com/trevorpogue/topspace/tree/HEAD)
 
-[Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.2.1...v0.3.0)
+[Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.2.1...HEAD)
 
 **Implemented enhancements:**
 
