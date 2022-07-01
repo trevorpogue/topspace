@@ -21,8 +21,10 @@
 <a href="https://github.com/trevorpogue/topspace#extra-functions"> Extra functions</a> |
    <a href="https://github.com/trevorpogue/topspace#how-it-works"> How it works </a> ]
 
-TopSpace is an Emacs minor mode that allows you to scroll down and recenter top lines by automatically drawing an upper margin/padding above the top line
-as you scroll down or recenter top text.
+TopSpace is an Emacs minor mode that provides the ability to scroll down the first line of a buffer to be below the very top of the window, as if the buffer contains additional blank lines above the first line. 
+This is done by automatically drawing an upper margin/padding above line 1
+as you recenter and scroll down top text, without modifying the
+underlying file.
 
 ### Features
 
@@ -80,7 +82,7 @@ This is done by automatically calling `topspace-recenter-buffer'
 and the positioning can be customized with `topspace-center-position'.
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height, or if `window-start' is greater
-than 1.  Customize `topspace-center-position' to adjust the centering position.
+than 1.
 
 With the default value, buffers will not be centered if in a child frame
 or if the user has already scrolled or used `recenter' with buffer in the
