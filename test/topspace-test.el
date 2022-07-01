@@ -200,10 +200,10 @@ by default"
   ;;               :to-equal
   ;;               (line-number-at-pos (point-max)))))
 
-  (it "can count lines end is larger `window-end'"
+  (it "can count lines"
       (set-window-start (selected-window) 300)
       (expect (round (topspace--count-lines (window-start)
-                                            (1+ (topspace--window-end))))
+                                            (topspace--window-end)))
               :to-equal (count-screen-lines (window-start)
                                                (topspace--window-end)))
       (set-window-start (selected-window) 1))
@@ -211,15 +211,15 @@ by default"
   (it "can count lines if start is larger than end"
       (set-window-start (selected-window) 300)
       (expect (round (topspace--count-lines 401 201))
-              :to-equal 4)
+              :to-equal 3)
       (expect (round (topspace--count-lines 201 401))
-              :to-equal 4)
+              :to-equal 3)
       (set-window-start (selected-window) 1))
 
   (it "can count lines if window-absolute-pixel-position returns nil"
       (expect (round (round (topspace--count-lines 201 401)))
               :to-equal
-              4)))
+              3)))
 
  (describe
   "topspace--correct-height"
