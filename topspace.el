@@ -1,4 +1,4 @@
-;;; topspace.el --- Scroll down & recenter line 1 to be below the top of the window using upper margin/padding -*- lexical-binding: t -*-
+;;; topspace.el --- Recenter line 1 with scrollable upper margin/padding -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2021-2022 Free Software Foundation, Inc.
 
@@ -34,7 +34,12 @@
 ;; as you recenter and scroll down top text, without modifying the
 ;; underlying file.
 
-;; See https://github.com/trevorpogue/topspace for a gif demo & documentation.
+;; TopSpace lets you display a buffer's first line in the center of a window
+;; instead of just at the top.
+;; This is done by automatically drawing an upper margin/padding above line 1
+;; as you recenter and scroll it down.
+
+;; See https://github.com/trevorpogue/topspace for a GIF demo & documentation.
 
 ;; Features:
 
@@ -44,7 +49,7 @@
 
 ;; - Easy to use: No new keybindings are required, keep using all
 ;;   your previous scrolling & recentering commands, except now you
-;;   can also scroll above the top lines.  It also integrates
+;;   can also scroll down the first line.  It also integrates
 ;;   seamlessly with `centered-cursor-mode' to keep the cursor
 ;;   centered all the way to the top line.
 
@@ -772,7 +777,7 @@ Topspace will not be enabled for:
 
 ;;;###autoload
 (define-minor-mode topspace-mode
-  "Scroll down & recenter line 1 to be below the top of the window.
+  "Recenter line 1 with scrollable upper margin/padding.
 
 TopSpace provides the ability to scroll down the first line of a buffer
 to be below the top of the window with blank lines drawn above it,

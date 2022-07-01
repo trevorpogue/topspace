@@ -21,19 +21,14 @@
 <a href="https://github.com/trevorpogue/topspace#extra-functions"> Extra functions</a> |
    <a href="https://github.com/trevorpogue/topspace#how-it-works"> How it works </a> ]
 
-TopSpace is an Emacs minor mode that
-provides the ability to scroll down the first line of a buffer
-to be below the top of the window with blank lines drawn above it,
-allowing the first line to be displayed in the center of the window
-as if it weren't the first line.
+TopSpace is an Emacs minor mode that lets you display a buffer's first line in the center of a window instead of just at the top.
 This is done by automatically drawing an upper margin/padding above line 1
-as you recenter and scroll down top text, without modifying the
-underlying file.
+as you recenter and scroll it down.
 
 ### Features
 
 * **Easier on the eyes**: Recenter or scroll down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
-* **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.
+* **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll down the first line. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.
 
 # Installation
 
@@ -58,7 +53,7 @@ To enable `topspace-mode` globally on startup, add the following to your Emacs c
 ```
 # Usage
 ### Just enable and go
-No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll above the top lines.
+No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll down the first line.
 
 # Customization
 ```elisp
