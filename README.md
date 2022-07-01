@@ -21,7 +21,7 @@
 <a href="https://github.com/trevorpogue/topspace#extra-functions"> Extra functions</a> |
    <a href="https://github.com/trevorpogue/topspace#how-it-works"> How it works </a> ]
 
-TopSpace is an Emacs minor mode that provides the ability to scroll down the first line of a buffer to be below the very top of the window, as if the buffer contains additional blank lines above the first line. 
+TopSpace is an Emacs minor mode that provides the ability to scroll down the first line of a buffer to be below the top of the window, as if the buffer contains additional blank lines above the first line. 
 This is done by automatically drawing an upper margin/padding above line 1
 as you recenter and scroll down top text, without modifying the
 underlying file.

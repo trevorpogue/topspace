@@ -27,7 +27,7 @@
 ;;; Commentary:
 
 ;; TopSpace provides the ability to scroll down the first line of a buffer
-;; to be below the very top of the window, as if the buffer contains
+;; to be below the top of the window, as if the buffer contains
 ;; additional blank lines above the first line.
 ;; This is done by automatically drawing an upper margin/padding above line 1
 ;; as you recenter and scroll down top text, without modifying the
@@ -774,7 +774,7 @@ Topspace will not be enabled for:
   "Scroll down & recenter line 1 to be below the top of the window.
 
 TopSpace provides the ability to scroll down the first line of a buffer
-to be below the very top of the window, as if the buffer contains
+to be below the top of the window, as if the buffer contains
 additional blank lines above the first line.
 This is done by automatically drawing an upper margin/padding above line 1
 as you recenter and scroll down top text, without modifying the
