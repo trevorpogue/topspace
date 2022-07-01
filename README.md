@@ -24,7 +24,8 @@
 TopSpace is an Emacs minor mode that
 provides the ability to scroll down the first line of a buffer
 to be below the top of the window with blank lines drawn above it,
-allowing the first line to be displayed in the center of the window.
+allowing the first line to be displayed in the center of the window,
+as if it weren't the first line.
 This is done by automatically drawing an upper margin/padding above line 1
 as you recenter and scroll down top text, without modifying the
 underlying file.
