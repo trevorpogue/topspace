@@ -28,7 +28,7 @@ as you recenter and scroll it down.
 ### Features
 
 * **Easier on the eyes**: Recenter or scroll down top text to a more comfortable eye level for reading, especially when in full-screen or on a large monitor.
-* **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll down the first line. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the top line.
+* **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll down the first line. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the first line.
 
 # Installation
 
