@@ -26,14 +26,6 @@
 
 ;;; Commentary:
 
-;; TopSpace provides the ability to scroll down the first line of a buffer
-;; to be below the top of the window with blank lines drawn above it,
-;; allowing the first line to be displayed in the center of the window
-;; as if it weren't the first line.
-;; This is done by automatically drawing an upper margin/padding above line 1
-;; as you recenter and scroll down top text, without modifying the
-;; underlying file.
-
 ;; TopSpace lets you display a buffer's first line in the center of a window
 ;; instead of just at the top.
 ;; This is done by automatically drawing an upper margin/padding above line 1
@@ -779,15 +771,12 @@ Topspace will not be enabled for:
 (define-minor-mode topspace-mode
   "Recenter line 1 with scrollable upper margin/padding.
 
-TopSpace provides the ability to scroll down the first line of a buffer
-to be below the top of the window with blank lines drawn above it,
-allowing the first line to be displayed in the center of the window
-as if it weren't the first line.
+TopSpace lets you display a buffer's first line in the center of a window
+instead of just at the top.
 This is done by automatically drawing an upper margin/padding above line 1
-as you recenter and scroll down top text, without modifying the
-underlying file.
+as you recenter and scroll it down.
 
-See https://github.com/trevorpogue/topspace for a gif demo & documentation.
+See https://github.com/trevorpogue/topspace for a GIF demo & documentation.
 
 Features:
 
