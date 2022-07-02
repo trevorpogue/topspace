@@ -267,8 +267,8 @@ scrolling."
 # How it works
 
 The "upper margin" is created by drawing an [overlay](https://www.gnu.org/software/emacs/manual/html_node/elisp/Overlays.html) before
-window-start containing newline characters.  As you scroll above the
-top line, more newline characters are added or removed accordingly.
+window-start containing newline characters.  As you scroll down the
+first line, more newline characters are added or removed accordingly.
 
 No new keybindings are required as topspace automatically works for
 any commands or subsequent function calls which use `scroll-up`,
