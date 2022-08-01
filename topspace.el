@@ -420,9 +420,9 @@ command is run in the described case above."
                                      1 topspace--window-start-before-scroll)))
         (setq total-lines (abs total-lines))
         (set-window-start (selected-window) 1)
-        (topspace-set-height (- total-lines lines-already-scrolled))))
-    (when (and (bound-and-true-p linum-mode) (fboundp 'linum-update-window))
-      (linum-update-window (selected-window))))))
+        (topspace-set-height (- total-lines lines-already-scrolled)))
+      (when (and (bound-and-true-p linum-mode) (fboundp 'linum-update-window))
+        (linum-update-window (selected-window)))))))
 
 (defun topspace--after-recenter (&optional line-offset redisplay)
   "Recenter near the top of buffers by adding top space appropriately.
