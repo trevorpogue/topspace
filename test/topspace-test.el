@@ -83,11 +83,18 @@
  (describe
   "topspace--after-scroll"
   (it "is needed when first scrolling above the top line"
+      (linum-mode 1)
       (goto-char 1)
       (topspace-set-height 0)
       (scroll-up-line)
       (scroll-down 2)
-      (expect (round (topspace-height)) :to-equal 1)))
+      (linum-mode -1)
+      (goto-char 1)
+      (topspace-set-height 0)
+      (scroll-up-line)
+      (scroll-down 2)
+      (expect (round (topspace-height)) :to-equal 1)
+      ))
 
  (describe
   "topspace--window-configuration-change"
