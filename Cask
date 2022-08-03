@@ -4,6 +4,7 @@
 (development
  (depends-on "undercover")
  (depends-on "buttercup")
- (depends-on "smooth-scrolling"))
+ (depends-on "smooth-scrolling")
+ (depends-on "linum"))
 
 (package-file "topspace.el")

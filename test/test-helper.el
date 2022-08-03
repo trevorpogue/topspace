@@ -15,6 +15,7 @@
               ))
 
 (require 'smooth-scrolling)
+(require 'linum)
 (require 'topspace)
 
 ;;; test-helper.el ends here
