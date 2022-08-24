@@ -22,7 +22,7 @@ jobs:
           output: NEWS.md
           base: HISTORY.md
           issues: no
-          futureRelease: v0.3.1
+#          futureRelease: v0.3.1
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
