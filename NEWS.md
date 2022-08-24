@@ -1,10 +1,10 @@
 # History of user-visible changes
 
-## [Unreleased](https://github.com/trevorpogue/topspace/tree/HEAD)
+## [v0.3.1](https://github.com/trevorpogue/topspace/tree/v0.3.1) (2022-08-24)
 
-[Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.3.0...HEAD)
+[Full Changelog](https://github.com/trevorpogue/topspace/compare/v0.3.0...v0.3.1)
 
-**Merged pull requests:**
+**Fixed bugs:**
 
 - Prevent line `1` indicator sometimes displaying too high in `linum-mode` [\#22](https://github.com/trevorpogue/topspace/pull/22) ([trevorpogue](https://github.com/trevorpogue))
 
