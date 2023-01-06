@@ -7,8 +7,8 @@
    <a href="https://github.com/trevorpogue/topspace/actions/workflows/ci.yml/"><img src="https://github.com/trevorpogue/topspace/actions/workflows/ci.yml/badge.svg" height="20"/></a>
   <a href='https://coveralls.io/github/trevorpogue/topspace?branch=main'><img src='https://coveralls.io/repos/github/trevorpogue/topspace/badge.svg?branch=main&1' alt='Coverage Status' /></a>
   <a href="https://github.com/trevorpogue/topspace/blob/main/.github/workflows/ci.yml"><img src="https://img.shields.io/badge/Emacs-25.1+-blueviolet.svg?style=flat-square&logo=GNU%20Emacs&logoColor=whit" height="20"/></a>
+  <a href="https://elpa.gnu.org/packages/topspace.html"><img src="https://elpa.gnu.org/packages/topspace.svg" height="20"/></a>
   <a href="http://melpa.org/#/topspace"><img src="http://melpa.org/packages/topspace-badge.svg" height="20"/></a>
-  <a href="http://stable.melpa.org/#/topspace"><img src="http://stable.melpa.org/packages/topspace-badge.svg" height="20"/></a>
 
 </p>
 
@@ -31,15 +31,11 @@ as you recenter and scroll it down.
 * **Easy to use**: No new keybindings are required, keep using all your previous scrolling & recentering commands, except now you can also scroll down the first line. It also integrates seamlessly with  [centered-cursor-mode][1] to keep the cursor centered all the way to the first line.
 
 # Installation
+Run the following command in Emacs
 
-TopSpace is available on [MELPA](http://melpa.org).
-After [installing MELPA](https://melpa.org/#/getting-started) you can install TopSpace with the following command:
+&nbsp;&nbsp;&nbsp;&nbsp; <kbd>M-x</kbd> `package-install` <kbd>[RET]</kbd> `topspace` <kbd>[RET]</kbd>,
 
-&nbsp;&nbsp;&nbsp;&nbsp; <kbd>M-x</kbd> `package-install` <kbd>[RET]</kbd> `topspace` <kbd>[RET]</kbd>
-
-If `topspace` did not appear here in `package-install` try running <kbd>M-x</kbd> `package-refresh-contents` and repeating the above step.
-
-Then enable TopSpace locally with
+then enable TopSpace locally with
 
 &nbsp;&nbsp;&nbsp;&nbsp; <kbd>M-x</kbd> `topspace-mode`,
 
@@ -47,7 +43,7 @@ or globally with
 
 &nbsp;&nbsp;&nbsp;&nbsp; <kbd>M-x</kbd> `global-topspace-mode`.
 
-To enable `topspace-mode` globally on startup, add the following to your Emacs config:
+To enable `topspace-mode` globally on startup, add the following to your Emacs config
 ```
 (global-topspace-mode 1)
 ```
