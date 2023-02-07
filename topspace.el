@@ -133,7 +133,7 @@ This is done by automatically calling `topspace-recenter-buffer'
 and the positioning can be customized with `topspace-center-position'.
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height, or if `window-start' is greater
-than 1.
+than `point-min`.
 
 With the default value, buffers will not be centered if in a child frame
 or if the user has already scrolled or used `recenter' with buffer in the
@@ -228,7 +228,7 @@ If the stored height is now invalid, it will first be corrected by
 `topspace--correct-height' before being returned.
 Valid top space line heights are:
 - never negative,
-- only positive when `window-start' equals 1,
+- only positive when `window-start' equals `point-min`,
   `topspace-active' returns non-nil, and `topspace-mode' is enabled,
 - not larger than `window-text-height' minus `topspace--context-lines'."
   (let ((height) (window (selected-window)))
@@ -257,7 +257,7 @@ according to `topspace-height'.
 If TOTAL-LINES is invalid, it will be corrected by `topspace--correct-height'.
 Valid top space line heights are:
 - never negative,
-- only positive when `window-start' equals 1,
+- only positive when `window-start' equals `point-min`,
   `topspace-active' returns non-nil, and `topspace-mode' is enabled,
 - not larger than `window-text-height' minus `topspace--context-lines'."
   (interactive "P")
@@ -275,11 +275,12 @@ Valid top space line heights are:
       (let ((lines-past-max (topspace--total-lines-past-max total-lines)))
         (when (> lines-past-max 0)
           (topspace--previous-line (ceiling lines-past-max)))))
-    (let ((topspace (make-overlay 1 1)))
+    (let ((topspace (make-overlay (point-min) (point-min))))
       ;; Redraw top space with the new height by drawing a new overlay and
       ;; erasing any previously drawn overlays for current buffer in
       ;; selected window
-      (remove-overlays 1 1 'topspace--remove-from-window-tag window)
+      (remove-overlays 1 (buffer-size)
+                       'topspace--remove-from-window-tag window)
       (overlay-put topspace 'window window)
       (overlay-put topspace 'topspace--remove-from-window-tag window)
       (overlay-put topspace 'topspace--remove-from-buffer-tag t)
@@ -293,7 +294,7 @@ Valid top space line heights are:
 POSITION defaults to `topspace-center-position'.
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height, or if `window-start' is greater
-than 1.
+than `point-min`.
 
 If POSITION is a floating-point, it represents the position to center buffer as
 a ratio of frame height, and can be a value from 0.0 to 1.0 where lower values
@@ -308,7 +309,7 @@ and the value should be less than the height of the window.
 
 Top space will not be added if the number of text lines in the buffer is larger
 than or close to the selected window's height, or if `window-start' is greater
-than 1.
+than `point-min`.
 
 Customize `topspace-center-position' to adjust the default centering position.
 Customize `topspace-autocenter-buffers' to run this command automatically
@@ -409,17 +410,19 @@ TOTAL-LINES is used in the same way as in `scroll-down'.
 This is needed when scrolling down (moving buffer text lower in the screen)
 and no top space was present before scrolling but it should be after scrolling.
 The reason this is needed is because `topspace-set-height' only draws the
-overlay when `window-start` equals 1, which can only be true after the scroll
-command is run in the described case above."
+overlay when `window-start` equals `point-min`, which can only be true after the
+scroll command is run in the described case above."
   (cond
    ((not (topspace--enabled)))
    (t
     (setq total-lines topspace--total-lines-scrolling)
-    (when (and (> topspace--window-start-before-scroll 1) (= (window-start) 1))
+    (when (and (> topspace--window-start-before-scroll (point-min))
+               (= (window-start) (point-min)))
       (let ((lines-already-scrolled (topspace--count-lines
-                                     1 topspace--window-start-before-scroll)))
+                                     (point-min)
+                                     topspace--window-start-before-scroll)))
         (setq total-lines (abs total-lines))
-        (set-window-start (selected-window) 1)
+        (set-window-start (selected-window) (point-min))
         (topspace-set-height (- total-lines lines-already-scrolled)))
       (when (and (bound-and-true-p linum-mode) (fboundp 'linum-update-window))
         (linum-update-window (selected-window)))))))
@@ -434,7 +437,7 @@ LINE-OFFSET and REDISPLAY are used in the same way as in `recenter'."
    ((not (topspace--enabled)))
    (t
     (setf (alist-get (selected-window) topspace--buffer-was-scrolled) t)
-    (when (= (window-start) 1)
+    (when (= (window-start) (point-min))
       (setq line-offset (topspace--calculate-recenter-line-offset line-offset))
       (topspace-set-height (- line-offset (topspace--count-lines
                                            (window-start)
@@ -467,12 +470,12 @@ top space height, and it does not redraw the top space."
   "Return HEIGHT if a valid top space line height, else a valid value.
 Valid top space line heights are:
 - never negative,
-- only positive when `window-start' equals 1,
+- only positive when `window-start' equals `point-min`,
   `topspace-active' returns non-nil, and `topspace-mode' is enabled,
 - not larger than `window-text-height' minus `topspace--context-lines'."
   (let ((max-height (- (window-text-height) topspace--context-lines)))
     (setq height (float height))
-    (when (> (window-start) 1) (setq height 0.0))
+    (when (> (window-start) (point-min)) (setq height 0.0))
     (when (< height 0) (setq height 0.0))
     (when (> height max-height) (setq height max-height))
     (unless (topspace--enabled) (setq height 0.0)))
@@ -677,7 +680,7 @@ ARG defaults to 1."
 
 (defun topspace--post-command ()
   "Reduce top space height before the cursor can move past `window-end'."
-  (when (and (= topspace--pre-command-window-start 1)
+  (when (and (= topspace--pre-command-window-start (point-min))
              (> (point) topspace--pre-command-point))
     (let ((next-line-point))
       (save-excursion
@@ -699,7 +702,7 @@ ARG defaults to 1."
                                         topspace-height))
             (when (> total-lines-past-max 0)
               (topspace--decrease-height total-lines-past-max)))))))
-  (when (and (= (window-start) 1)
+  (when (and (= (window-start) (point-min))
              topspace--got-first-window-configuration-change)
     (topspace-set-height)))
 
@@ -750,7 +753,7 @@ Topspace will not be enabled for:
 
 (defun topspace--disable ()
   "Disable `topspace-mode' and do mode cleanup."
-  (remove-overlays 1 1 'topspace--remove-from-buffer-tag t)
+  (remove-overlays 1 (buffer-size) 'topspace--remove-from-buffer-tag t)
   (topspace--remove-hooks))
 
 ;;;###autoload
